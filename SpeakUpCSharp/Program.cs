@@ -6,6 +6,7 @@ using SpeakUp.Services;
 using SpeakUpCSharp.Data;
 using SpeakUpCSharp.Models;
 using SpeakUpCSharp.Utilities;
+using System.Security.Claims;
 using System.Text;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -26,26 +27,31 @@ builder.Services.AddCors(options => {
 		});
 });
 
+builder.Services.AddIdentity<ApplicationUser,IdentityRole<int>>(options => {
+	options.ClaimsIdentity.UserNameClaimType=ClaimTypes.Name;
+	options.ClaimsIdentity.UserIdClaimType=ClaimTypes.NameIdentifier;
+	options.ClaimsIdentity.EmailClaimType=ClaimTypes.Email;
+}).AddEntityFrameworkStores<ApplicationDbContext>().AddDefaultTokenProviders();
+
 builder.Services.AddAuthentication(options => {
 	options.DefaultAuthenticateScheme=JwtBearerDefaults.AuthenticationScheme;
 	options.DefaultChallengeScheme=JwtBearerDefaults.AuthenticationScheme;
+	options.DefaultScheme=JwtBearerDefaults.AuthenticationScheme;
 }).AddJwtBearer(options => {
 	options.RequireHttpsMetadata=false; // For development, set to true in production
 	options.SaveToken=true;
 	options.TokenValidationParameters=new TokenValidationParameters {
-		ValidateIssuerSigningKey=true,
-		IssuerSigningKey=new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtKey)),
 		ValidateIssuer=true,
 		ValidateAudience=true,
-		ValidIssuer=jwtIssuer, // Optional: Set if you have a specific issuer
-		ValidAudience=jwtIssuer, // Optional: Set if you have a specific audience
+		ValidateLifetime=true,
+		ValidateIssuerSigningKey=true,
+		ValidIssuer=jwtIssuer,
+		ValidAudience=jwtIssuer,
+		IssuerSigningKey=new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtKey)),
 		ClockSkew=TimeSpan.FromDays(1) // Reduce the default clock skew to immediate token expiry
 	};
 });
 
-builder.Services.AddIdentity<ApplicationUser,IdentityRole<int>>()
-	.AddEntityFrameworkStores<ApplicationDbContext>()
-		.AddDefaultTokenProviders();
 builder.Services.AddScoped<IDbInitializer,DbInitializer>();
 builder.Services.AddControllersWithViews();
 builder.Services.AddScoped<ITokenService,TokenService>();
@@ -58,19 +64,21 @@ if (app.Environment.IsDevelopment()) {
 	app.UseMigrationsEndPoint();
 } else {
 	app.UseExceptionHandler("/Home/Error");
+	// The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
 	app.UseHsts();
 }
+
+app.UseAuthentication();
+app.UseAuthorization();
 
 app.UseHttpsRedirection();
 app.UseStaticFiles();
 
-DataSeeding();
+//DataSeeding();
 
 app.UseRouting();
 
 app.UseCors(SvelteOrigins);
-app.UseAuthentication();
-app.UseAuthorization();
 
 app.MapControllerRoute(
 	name: "default",
@@ -79,9 +87,9 @@ app.MapRazorPages();
 
 app.Run();
 
-void DataSeeding() {
-	using (var scope = app.Services.CreateScope()) {
-		var DbInitializer = scope.ServiceProvider.GetRequiredService<IDbInitializer>();
-		DbInitializer.Initialize();
-	}
-}
+//void DataSeeding() {
+//	using (var scope = app.Services.CreateScope()) {
+//		var DbInitializer = scope.ServiceProvider.GetRequiredService<IDbInitializer>();
+//		DbInitializer.Initialize();
+//	}
+//}

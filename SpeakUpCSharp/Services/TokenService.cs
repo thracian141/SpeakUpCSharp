@@ -9,24 +9,24 @@ namespace SpeakUp.Services {
     public class TokenService : ITokenService {
         private readonly IConfiguration _configuration;
         private readonly UserManager<ApplicationUser> _userManager;
+        private readonly ILogger<TokenService> _logger;
 
-        public TokenService(IConfiguration configuration,UserManager<ApplicationUser> userManager) {
+        public TokenService(IConfiguration configuration,UserManager<ApplicationUser> userManager, ILogger<TokenService> logger) {
             _configuration=configuration;
             _userManager=userManager;
+            _logger=logger;
         }
 
         public async Task<string> GenerateToken(ApplicationUser user) {
-            var claims = new List<Claim>
-            {
-                new Claim("Id", user.Id.ToString()),
-                new Claim("Email", user.Email),
-                new Claim("UserName", user.UserName),
-                new Claim("DisplayName", user.DisplayName),
-                new Claim("ProfilePictureUrl", user.ProfilePictureUrl),
-                new Claim("AccountCreatedDate", user.AccountCreatedDate.ToString()),
-                new Claim("LastDeck", user.LastDeck.ToString())
-            };
-
+            _logger.LogInformation("CALLED GENERATE TOKEN");
+            var claims = new List<Claim> {
+					new Claim(ClaimTypes.Name, user.UserName),
+	                new Claim(ClaimTypes.NameIdentifier, user.Id.ToString()),
+	                new Claim(ClaimTypes.Email, user.Email),
+			};
+            foreach (var x in claims) {
+                _logger.LogInformation(x.ToString());
+            }
             var userRoles = await _userManager.GetRolesAsync(user);
 
             var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_configuration["JwtKey"]));
