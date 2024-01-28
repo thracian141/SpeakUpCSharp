@@ -5,6 +5,7 @@ using Microsoft.IdentityModel.Tokens;
 using SpeakUp.Services;
 using SpeakUpCSharp.Data;
 using SpeakUpCSharp.Models;
+using SpeakUpCSharp.Services;
 using SpeakUpCSharp.Utilities;
 using System.Security.Claims;
 using System.Text;
@@ -55,6 +56,7 @@ builder.Services.AddAuthentication(options => {
 builder.Services.AddScoped<IDbInitializer,DbInitializer>();
 builder.Services.AddControllersWithViews();
 builder.Services.AddScoped<ITokenService,TokenService>();
+builder.Services.AddScoped<IImageService,ImageService>();
 builder.Services.AddRazorPages();
 
 var app = builder.Build();

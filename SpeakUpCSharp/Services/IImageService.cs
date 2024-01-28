@@ -1,6 +1,6 @@
 ﻿namespace SpeakUpCSharp.Services {
 	public interface IImageService {
-		Task<string> SaveProfilePictureReturnUrl();
-		Task<FileStream> GetProfilePicture(int questionId);
+		Task<string> SaveProfilePictureReturnUrl(IFormFile imageFile);
+		Task<FileStream> GetProfilePictureByUserId(int userId);
 	}
 }
