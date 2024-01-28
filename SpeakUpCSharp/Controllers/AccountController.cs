@@ -46,5 +46,12 @@ namespace SpeakUpCSharp.Controllers {
 
             return new JsonResult(new { user });
         }
+        [HttpGet("getpfp")]
+        public async Task<IActionResult> GetPfp() {
+            var user = await _userManager.GetUserAsync(User);
+            if (user == null) return BadRequest("User not found");
+
+
+        }
     }
 }
