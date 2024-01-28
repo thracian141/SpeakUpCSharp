@@ -2,17 +2,21 @@
 using Microsoft.AspNetCore.Mvc;
 using SpeakUp.Models;
 using SpeakUpCSharp.Models;
+using SpeakUpCSharp.Services;
 
 namespace SpeakUpCSharp.Controllers {
 	[ApiController]
 	[Route("account")]
 	public class AccountController : ControllerBase {
         private readonly UserManager<ApplicationUser> _userManager;
-        private readonly ILogger<AccountController> _logger;
+		private IImageService _img;
+		private readonly ILogger<AccountController> _logger;
 
-        public AccountController(UserManager<ApplicationUser> userManager, ILogger<AccountController> logger) {
+        public AccountController(UserManager<ApplicationUser> userManager,
+            ILogger<AccountController> logger, IImageService img) {
             _userManager = userManager;
             _logger = logger;
+            _img = img;
         }
 
         [HttpGet("getusername")]
@@ -46,12 +50,29 @@ namespace SpeakUpCSharp.Controllers {
 
             return new JsonResult(new { user });
         }
+        [HttpPost("setpfp")]
+        public async Task<IActionResult> SetPfp([FromBody] IFormFile picture) {
+            var user = await _userManager.GetUserAsync(User);
+
+			if (user == null) return BadRequest("User not found");
+
+            // saves "picture" to wwwroot/ProfilePictures and returns the generated url
+            string pictureUrl = await _img.SaveProfilePictureReturnUrl(picture);
+            user.ProfilePictureUrl = pictureUrl;
+            await _userManager.UpdateAsync(user);
+
+            return Ok();
+		}
+
         [HttpGet("getpfp")]
         public async Task<IActionResult> GetPfp() {
             var user = await _userManager.GetUserAsync(User);
+
             if (user == null) return BadRequest("User not found");
 
+			var profilePicture = await _img.GetProfilePictureByUserId(user.Id);
 
-        }
+			return File(profilePicture,"image/*");
+		}
     }
 }
