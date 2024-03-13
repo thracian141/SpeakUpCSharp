@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using SpeakUpCSharp.Data;
 
@@ -11,9 +12,11 @@ using SpeakUpCSharp.Data;
 namespace SpeakUpCSharp.Data.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20240305162409_DeckFixed")]
+    partial class DeckFixed
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -170,8 +173,11 @@ namespace SpeakUpCSharp.Data.Migrations
                     b.Property<DateTime>("DateAdded")
                         .HasColumnType("datetime2");
 
-                    b.Property<int?>("DeckId")
+                    b.Property<int>("DeckId")
                         .HasColumnType("int");
+
+                    b.Property<string>("Description")
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<int>("Difficulty")
                         .HasColumnType("int");
@@ -274,27 +280,22 @@ namespace SpeakUpCSharp.Data.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<string>("Description")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<DateTime>("LastEdited")
+                    b.Property<DateTime?>("LastReviewDate")
                         .HasColumnType("datetime2");
 
-                    b.Property<int>("LastEditorId")
+                    b.Property<int>("Level")
                         .HasColumnType("int");
 
-                    b.Property<int>("Order")
-                        .HasColumnType("int");
-
-                    b.Property<string>("Title")
+                    b.Property<string>("Name")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<DateTime?>("NextReviewDate")
+                        .HasColumnType("datetime2");
+
                     b.HasKey("Id");
 
-                    b.HasIndex("LastEditorId");
-
-                    b.ToTable("Sections");
+                    b.ToTable("CourseSections");
                 });
 
             modelBuilder.Entity("SpeakUp.Models.Sentence", b =>
@@ -351,9 +352,6 @@ namespace SpeakUpCSharp.Data.Migrations
                     b.Property<bool>("EmailConfirmed")
                         .HasColumnType("bit");
 
-                    b.Property<string>("LastCourse")
-                        .HasColumnType("nvarchar(max)");
-
                     b.Property<int?>("LastDeck")
                         .HasColumnType("int");
 
@@ -405,28 +403,6 @@ namespace SpeakUpCSharp.Data.Migrations
                         .HasFilter("[NormalizedUserName] IS NOT NULL");
 
                     b.ToTable("AspNetUsers", (string)null);
-                });
-
-            modelBuilder.Entity("SpeakUpCSharp.Models.CourseLink", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<string>("CourseCode")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<int>("UserId")
-                        .HasColumnType("int");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("UserId");
-
-                    b.ToTable("CourseLinks");
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<int>", b =>
@@ -484,7 +460,9 @@ namespace SpeakUpCSharp.Data.Migrations
                 {
                     b.HasOne("SpeakUp.Models.Deck", "Deck")
                         .WithMany()
-                        .HasForeignKey("DeckId");
+                        .HasForeignKey("DeckId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
 
                     b.HasOne("SpeakUp.Models.Section", "Section")
                         .WithMany()
@@ -517,17 +495,6 @@ namespace SpeakUpCSharp.Data.Migrations
                     b.Navigation("Owner");
                 });
 
-            modelBuilder.Entity("SpeakUp.Models.Section", b =>
-                {
-                    b.HasOne("SpeakUpCSharp.Models.ApplicationUser", "LastEditor")
-                        .WithMany()
-                        .HasForeignKey("LastEditorId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("LastEditor");
-                });
-
             modelBuilder.Entity("SpeakUp.Models.Sentence", b =>
                 {
                     b.HasOne("SpeakUp.Models.Card", "Word")
@@ -537,17 +504,6 @@ namespace SpeakUpCSharp.Data.Migrations
                         .IsRequired();
 
                     b.Navigation("Word");
-                });
-
-            modelBuilder.Entity("SpeakUpCSharp.Models.CourseLink", b =>
-                {
-                    b.HasOne("SpeakUpCSharp.Models.ApplicationUser", "User")
-                        .WithMany()
-                        .HasForeignKey("UserId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("User");
                 });
 #pragma warning restore 612, 618
         }

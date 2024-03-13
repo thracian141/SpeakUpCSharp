@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace SpeakUpCSharp.Data.Migrations
 {
     /// <inheritdoc />
-    public partial class _001 : Migration
+    public partial class Initial : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -57,6 +57,23 @@ namespace SpeakUpCSharp.Data.Migrations
                 });
 
             migrationBuilder.CreateTable(
+                name: "CourseSections",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    Name = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    Level = table.Column<int>(type: "int", nullable: false),
+                    LastReviewDate = table.Column<DateTime>(type: "datetime2", nullable: true),
+                    NextReviewDate = table.Column<DateTime>(type: "datetime2", nullable: true),
+                    CourseCode = table.Column<string>(type: "nvarchar(max)", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_CourseSections", x => x.Id);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "AspNetRoleClaims",
                 columns: table => new
                 {
@@ -102,8 +119,8 @@ namespace SpeakUpCSharp.Data.Migrations
                 name: "AspNetUserLogins",
                 columns: table => new
                 {
-                    LoginProvider = table.Column<string>(type: "nvarchar(128)", maxLength: 128, nullable: false),
-                    ProviderKey = table.Column<string>(type: "nvarchar(128)", maxLength: 128, nullable: false),
+                    LoginProvider = table.Column<string>(type: "nvarchar(450)", nullable: false),
+                    ProviderKey = table.Column<string>(type: "nvarchar(450)", nullable: false),
                     ProviderDisplayName = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     UserId = table.Column<int>(type: "int", nullable: false)
                 },
@@ -147,8 +164,8 @@ namespace SpeakUpCSharp.Data.Migrations
                 columns: table => new
                 {
                     UserId = table.Column<int>(type: "int", nullable: false),
-                    LoginProvider = table.Column<string>(type: "nvarchar(128)", maxLength: 128, nullable: false),
-                    Name = table.Column<string>(type: "nvarchar(128)", maxLength: 128, nullable: false),
+                    LoginProvider = table.Column<string>(type: "nvarchar(450)", nullable: false),
+                    Name = table.Column<string>(type: "nvarchar(450)", nullable: false),
                     Value = table.Column<string>(type: "nvarchar(max)", nullable: true)
                 },
                 constraints: table =>
@@ -194,10 +211,9 @@ namespace SpeakUpCSharp.Data.Migrations
                     DeckName = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     Level = table.Column<int>(type: "int", nullable: false),
                     Difficulty = table.Column<int>(type: "int", nullable: false),
-                    ImageUrl = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     DeckDescription = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    IsCourse = table.Column<bool>(type: "bit", nullable: false),
-                    UserId = table.Column<int>(type: "int", nullable: false)
+                    OwnerId = table.Column<int>(type: "int", nullable: false),
+                    UserId = table.Column<int>(type: "int", nullable: true)
                 },
                 constraints: table =>
                 {
@@ -206,31 +222,7 @@ namespace SpeakUpCSharp.Data.Migrations
                         name: "FK_Decks_AspNetUsers_UserId",
                         column: x => x.UserId,
                         principalTable: "AspNetUsers",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
-                });
-
-            migrationBuilder.CreateTable(
-                name: "CourseSections",
-                columns: table => new
-                {
-                    Id = table.Column<int>(type: "int", nullable: false)
-                        .Annotation("SqlServer:Identity", "1, 1"),
-                    Name = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    Level = table.Column<int>(type: "int", nullable: false),
-                    LastReviewDate = table.Column<DateTime>(type: "datetime2", nullable: true),
-                    NextReviewDate = table.Column<DateTime>(type: "datetime2", nullable: true),
-                    DeckId = table.Column<int>(type: "int", nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_CourseSections", x => x.Id);
-                    table.ForeignKey(
-                        name: "FK_CourseSections_Decks_DeckId",
-                        column: x => x.DeckId,
-                        principalTable: "Decks",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
+                        principalColumn: "Id");
                 });
 
             migrationBuilder.CreateTable(
@@ -335,11 +327,6 @@ namespace SpeakUpCSharp.Data.Migrations
                 name: "IX_Cards_SectionId",
                 table: "Cards",
                 column: "SectionId");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_CourseSections_DeckId",
-                table: "CourseSections",
-                column: "DeckId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_DailyPerformances_UserId",

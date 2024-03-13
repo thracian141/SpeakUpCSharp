@@ -12,8 +12,8 @@ using SpeakUpCSharp.Data;
 namespace SpeakUpCSharp.Data.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20240117232544_001")]
-    partial class _001
+    [Migration("20240313133423_DeckIdOfCardNotMandatoryNow")]
+    partial class DeckIdOfCardNotMandatoryNow
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -106,12 +106,10 @@ namespace SpeakUpCSharp.Data.Migrations
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserLogin<int>", b =>
                 {
                     b.Property<string>("LoginProvider")
-                        .HasMaxLength(128)
-                        .HasColumnType("nvarchar(128)");
+                        .HasColumnType("nvarchar(450)");
 
                     b.Property<string>("ProviderKey")
-                        .HasMaxLength(128)
-                        .HasColumnType("nvarchar(128)");
+                        .HasColumnType("nvarchar(450)");
 
                     b.Property<string>("ProviderDisplayName")
                         .HasColumnType("nvarchar(max)");
@@ -147,12 +145,10 @@ namespace SpeakUpCSharp.Data.Migrations
                         .HasColumnType("int");
 
                     b.Property<string>("LoginProvider")
-                        .HasMaxLength(128)
-                        .HasColumnType("nvarchar(128)");
+                        .HasColumnType("nvarchar(450)");
 
                     b.Property<string>("Name")
-                        .HasMaxLength(128)
-                        .HasColumnType("nvarchar(128)");
+                        .HasColumnType("nvarchar(450)");
 
                     b.Property<string>("Value")
                         .HasColumnType("nvarchar(max)");
@@ -177,11 +173,8 @@ namespace SpeakUpCSharp.Data.Migrations
                     b.Property<DateTime>("DateAdded")
                         .HasColumnType("datetime2");
 
-                    b.Property<int>("DeckId")
+                    b.Property<int?>("DeckId")
                         .HasColumnType("int");
-
-                    b.Property<string>("Description")
-                        .HasColumnType("nvarchar(max)");
 
                     b.Property<int>("Difficulty")
                         .HasColumnType("int");
@@ -209,37 +202,6 @@ namespace SpeakUpCSharp.Data.Migrations
                     b.HasIndex("SectionId");
 
                     b.ToTable("Cards");
-                });
-
-            modelBuilder.Entity("SpeakUp.Models.CourseSection", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<int>("DeckId")
-                        .HasColumnType("int");
-
-                    b.Property<DateTime?>("LastReviewDate")
-                        .HasColumnType("datetime2");
-
-                    b.Property<int>("Level")
-                        .HasColumnType("int");
-
-                    b.Property<string>("Name")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<DateTime?>("NextReviewDate")
-                        .HasColumnType("datetime2");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("DeckId");
-
-                    b.ToTable("CourseSections");
                 });
 
             modelBuilder.Entity("SpeakUp.Models.DailyPerformance", b =>
@@ -290,23 +252,52 @@ namespace SpeakUpCSharp.Data.Migrations
                     b.Property<int>("Difficulty")
                         .HasColumnType("int");
 
-                    b.Property<string>("ImageUrl")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<bool>("IsCourse")
-                        .HasColumnType("bit");
-
                     b.Property<int>("Level")
                         .HasColumnType("int");
 
-                    b.Property<int>("UserId")
+                    b.Property<int>("OwnerId")
                         .HasColumnType("int");
 
                     b.HasKey("Id");
 
-                    b.HasIndex("UserId");
+                    b.HasIndex("OwnerId");
 
                     b.ToTable("Decks");
+                });
+
+            modelBuilder.Entity("SpeakUp.Models.Section", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("CourseCode")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Description")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime>("LastEdited")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int>("LastEditorId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("Order")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Title")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("LastEditorId");
+
+                    b.ToTable("Sections");
                 });
 
             modelBuilder.Entity("SpeakUp.Models.Sentence", b =>
@@ -363,6 +354,9 @@ namespace SpeakUpCSharp.Data.Migrations
                     b.Property<bool>("EmailConfirmed")
                         .HasColumnType("bit");
 
+                    b.Property<string>("LastCourse")
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<int?>("LastDeck")
                         .HasColumnType("int");
 
@@ -414,6 +408,28 @@ namespace SpeakUpCSharp.Data.Migrations
                         .HasFilter("[NormalizedUserName] IS NOT NULL");
 
                     b.ToTable("AspNetUsers", (string)null);
+                });
+
+            modelBuilder.Entity("SpeakUpCSharp.Models.CourseLink", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("CourseCode")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("UserId")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("UserId");
+
+                    b.ToTable("CourseLinks");
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<int>", b =>
@@ -471,28 +487,15 @@ namespace SpeakUpCSharp.Data.Migrations
                 {
                     b.HasOne("SpeakUp.Models.Deck", "Deck")
                         .WithMany()
-                        .HasForeignKey("DeckId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                        .HasForeignKey("DeckId");
 
-                    b.HasOne("SpeakUp.Models.CourseSection", "Section")
+                    b.HasOne("SpeakUp.Models.Section", "Section")
                         .WithMany()
                         .HasForeignKey("SectionId");
 
                     b.Navigation("Deck");
 
                     b.Navigation("Section");
-                });
-
-            modelBuilder.Entity("SpeakUp.Models.CourseSection", b =>
-                {
-                    b.HasOne("SpeakUp.Models.Deck", "Deck")
-                        .WithMany()
-                        .HasForeignKey("DeckId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Deck");
                 });
 
             modelBuilder.Entity("SpeakUp.Models.DailyPerformance", b =>
@@ -508,13 +511,24 @@ namespace SpeakUpCSharp.Data.Migrations
 
             modelBuilder.Entity("SpeakUp.Models.Deck", b =>
                 {
-                    b.HasOne("SpeakUpCSharp.Models.ApplicationUser", "User")
+                    b.HasOne("SpeakUpCSharp.Models.ApplicationUser", "Owner")
                         .WithMany()
-                        .HasForeignKey("UserId")
+                        .HasForeignKey("OwnerId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.Navigation("User");
+                    b.Navigation("Owner");
+                });
+
+            modelBuilder.Entity("SpeakUp.Models.Section", b =>
+                {
+                    b.HasOne("SpeakUpCSharp.Models.ApplicationUser", "LastEditor")
+                        .WithMany()
+                        .HasForeignKey("LastEditorId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("LastEditor");
                 });
 
             modelBuilder.Entity("SpeakUp.Models.Sentence", b =>
@@ -526,6 +540,17 @@ namespace SpeakUpCSharp.Data.Migrations
                         .IsRequired();
 
                     b.Navigation("Word");
+                });
+
+            modelBuilder.Entity("SpeakUpCSharp.Models.CourseLink", b =>
+                {
+                    b.HasOne("SpeakUpCSharp.Models.ApplicationUser", "User")
+                        .WithMany()
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("User");
                 });
 #pragma warning restore 612, 618
         }

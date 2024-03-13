@@ -28,7 +28,7 @@ namespace SpeakUpCSharp.Controllers {
                 Id=0,
                 UserName=model.UserName,
                 Email=model.Email,
-                DisplayName=null,
+                DisplayName=model.DisplayName,
                 ProfilePictureUrl=null,
                 AccountCreatedDate=DateTime.UtcNow,
                 LastDeck=null

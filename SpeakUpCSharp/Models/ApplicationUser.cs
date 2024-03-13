@@ -12,5 +12,6 @@ namespace SpeakUpCSharp.Models {
 		[Required]
 		public DateTime AccountCreatedDate { get; set; }
 		public int? LastDeck { get; set; }
+		public string? LastCourse { get; set; }
 	}
 }

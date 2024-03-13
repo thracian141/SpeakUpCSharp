@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using SpeakUpCSharp.Data;
 
@@ -11,9 +12,11 @@ using SpeakUpCSharp.Data;
 namespace SpeakUpCSharp.Data.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20240312130215_ChangedSections")]
+    partial class ChangedSections
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -170,7 +173,7 @@ namespace SpeakUpCSharp.Data.Migrations
                     b.Property<DateTime>("DateAdded")
                         .HasColumnType("datetime2");
 
-                    b.Property<int?>("DeckId")
+                    b.Property<int>("DeckId")
                         .HasColumnType("int");
 
                     b.Property<int>("Difficulty")
@@ -283,10 +286,7 @@ namespace SpeakUpCSharp.Data.Migrations
                     b.Property<int>("LastEditorId")
                         .HasColumnType("int");
 
-                    b.Property<int>("Order")
-                        .HasColumnType("int");
-
-                    b.Property<string>("Title")
+                    b.Property<string>("Name")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
@@ -294,7 +294,7 @@ namespace SpeakUpCSharp.Data.Migrations
 
                     b.HasIndex("LastEditorId");
 
-                    b.ToTable("Sections");
+                    b.ToTable("CourseSections");
                 });
 
             modelBuilder.Entity("SpeakUp.Models.Sentence", b =>
@@ -484,7 +484,9 @@ namespace SpeakUpCSharp.Data.Migrations
                 {
                     b.HasOne("SpeakUp.Models.Deck", "Deck")
                         .WithMany()
-                        .HasForeignKey("DeckId");
+                        .HasForeignKey("DeckId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
 
                     b.HasOne("SpeakUp.Models.Section", "Section")
                         .WithMany()

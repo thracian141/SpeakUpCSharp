@@ -1,5 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using System.Text.Json.Serialization;
 
 namespace SpeakUp.Models
 {
@@ -19,13 +20,13 @@ namespace SpeakUp.Models
 		public DateTime DateAdded { get; set; }
         public DateTime? LastReviewDate { get; set; }
         public DateTime? NextReviewDate { get; set; }
-		public string? Description { get; set; }
-        [Required]
-        public int DeckId { get; set; }
+        public int? DeckId { get; set; }
         [ForeignKey("DeckId")]
+		[JsonIgnore]
         public virtual Deck Deck { get; set; }
 		public int? SectionId { get; set; } //words dont necessarily have a sectionId
 		[ForeignKey("SectionId")]
-		public virtual CourseSection? Section { get; set; }
+		[JsonIgnore]
+		public virtual Section? Section { get; set; }
 	}
 }

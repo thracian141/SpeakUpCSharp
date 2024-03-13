@@ -21,21 +21,10 @@ namespace SpeakUpCSharp.Controllers {
 
         [HttpGet("getusername")]
         public async Task<IActionResult> GetUsername() {
-			var token = HttpContext.Request.Headers["Authorization"]; // Check if the token is present in headers
-			_logger.LogInformation("Received token: {0}",token);
-
-			if (User?.Identity?.IsAuthenticated==true) { 
-                _logger.LogInformation("User is authenticated");
-				foreach (var claim in User.Claims) {
-					_logger.LogInformation("Claim Type: {0}, Claim Value: {1}",claim.Type,claim.Value);
-				}
-			}
-
-			var username = HttpContext.User.Identity.Name.ToString();
-			_logger.LogInformation("User is {0}",username);
-            if (username== null) {
-                return BadRequest("User not found");
-            }
+            _logger.LogInformation("GetUsername called");
+            var user = await _userManager.GetUserAsync(User);
+			_logger.LogInformation("User is: " + user.UserName);
+			var username = user.UserName;
 
             return new JsonResult(new { username });
         }

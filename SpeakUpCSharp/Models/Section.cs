@@ -10,21 +10,23 @@ using System.Threading.Tasks;
 
 namespace SpeakUp.Models
 {
-	public class Deck
+	public class Section
 	{
 		[Key]
 		public int Id { get; set; }
 		[Required]
-		public string DeckName { get; set; }
+		public string Title { get; set; }
+		public string? Description { get; set; }
 		[Required]
-		public int Level { get; set; } = 0;
+		public DateTime LastEdited { get; set; }
 		[Required]
-		public int Difficulty { get; set; } = 0;
-		public string? DeckDescription { get; set; }
+		public string CourseCode { get; set; }
 		[Required]
-        public int OwnerId { get; set; }
-		[ForeignKey("OwnerId")]
+		public int Order { get; set; }
+		[Required]
+		public int LastEditorId { get; set; }
+		[ForeignKey("LastEditorId")]
 		[JsonIgnore]
-		public virtual ApplicationUser Owner { get; set; }
+		public virtual ApplicationUser LastEditor { get; set; }
 	}
 }
