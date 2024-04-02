@@ -89,10 +89,8 @@ app.MapRazorPages();
 
 app.Run();
 
-//void DataSeeding()
-//{
-//	using (var scope = app.Services.CreateScope())
-//	{
+//void DataSeeding() {
+//	using (var scope = app.Services.CreateScope()) {
 //		var DbInitializer = scope.ServiceProvider.GetRequiredService<IDbInitializer>();
 //		DbInitializer.Initialize();
 //	}

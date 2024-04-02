@@ -1,7 +1,9 @@
 ﻿using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using SpeakUp.Models;
+using SpeakUpCSharp.Data;
 using SpeakUpCSharp.Models;
+using SpeakUpCSharp.Models.InputModels;
 using SpeakUpCSharp.Services;
 
 namespace SpeakUpCSharp.Controllers {
@@ -11,22 +13,51 @@ namespace SpeakUpCSharp.Controllers {
         private readonly UserManager<ApplicationUser> _userManager;
 		private IImageService _img;
 		private readonly ILogger<AccountController> _logger;
+        private readonly ApplicationDbContext _db;
 
         public AccountController(UserManager<ApplicationUser> userManager,
-            ILogger<AccountController> logger, IImageService img) {
+            ILogger<AccountController> logger, IImageService img, ApplicationDbContext db) {
             _userManager = userManager;
             _logger = logger;
             _img = img;
+            _db = db;
+        }
+
+        [HttpGet("getname")]
+        public async Task<IActionResult> GetName() {
+            var user = await _userManager.GetUserAsync(User);
+            string name;
+
+            if (user.DisplayName != null)
+                name = user.DisplayName;
+            else
+                name = user.UserName;
+
+            return new JsonResult(new { name });
         }
 
         [HttpGet("getusername")]
         public async Task<IActionResult> GetUsername() {
-            _logger.LogInformation("GetUsername called");
             var user = await _userManager.GetUserAsync(User);
-			_logger.LogInformation("User is: " + user.UserName);
 			var username = user.UserName;
 
             return new JsonResult(new { username });
+        }
+        [HttpGet("getdisplayname")]
+        public async Task<IActionResult> GetDisplayName() {
+            var user = await _userManager.GetUserAsync(User);
+            var displayname = user.DisplayName;
+
+            return new JsonResult(new { displayname });
+        }
+        [HttpGet("checkifadmin")]
+        public async Task<IActionResult> CheckIfAdmin() {
+            var user = await _userManager.GetUserAsync(User);
+            bool isAdmin = await _userManager.IsInRoleAsync(user, "Admin");
+            if (isAdmin)
+                return Ok();
+            else
+                return Unauthorized();
         }
 
         [HttpGet("allInfo")]
@@ -63,5 +94,70 @@ namespace SpeakUpCSharp.Controllers {
 
 			return File(profilePicture,"image/*");
 		}
-    }
+
+        [HttpPost("editusername")]
+        public async Task<IActionResult> EditUsername([FromBody] EditUserInputModel model) {
+            var user = await _userManager.GetUserAsync(User);
+            if (user == null)
+                return BadRequest();
+
+            var isPasswordCorrect = await _userManager.CheckPasswordAsync(user, model.currentPassword);
+            if (isPasswordCorrect == false)
+                return Unauthorized();
+
+            user.UserName = model.newInput;
+            user.NormalizedUserName = model.newInput.Normalize();
+            await _db.SaveChangesAsync();
+
+            return Ok(user.UserName);
+        }
+
+		[HttpPost("editemail")]
+		public async Task<IActionResult> EditEmail([FromBody] EditUserInputModel model) {
+			var user = await _userManager.GetUserAsync(User);
+			if (user == null)
+				return BadRequest();
+
+			var isPasswordCorrect = await _userManager.CheckPasswordAsync(user, model.currentPassword);
+			if (isPasswordCorrect == false)
+				return Unauthorized();
+
+			user.Email = model.newInput;
+            user.NormalizedEmail = model.newInput.Normalize();
+			await _db.SaveChangesAsync();
+
+			return Ok(user.Email);
+		}
+
+		[HttpPost("editdisplayname")]
+		public async Task<IActionResult> EditDisplayName([FromBody] EditUserInputModel model) {
+			var user = await _userManager.GetUserAsync(User);
+			if (user == null)
+				return BadRequest();
+
+			var isPasswordCorrect = await _userManager.CheckPasswordAsync(user, model.currentPassword);
+			if (isPasswordCorrect == false)
+				return Unauthorized();
+
+			user.DisplayName = model.newInput;
+			await _db.SaveChangesAsync();
+
+			return Ok(user.DisplayName);
+		}
+
+		[HttpPost("editpassword")]
+		public async Task<IActionResult> EditPassword([FromBody] EditUserInputModel model) {
+			var user = await _userManager.GetUserAsync(User);
+			if (user == null)
+				return BadRequest();
+
+			var isPasswordCorrect = await _userManager.CheckPasswordAsync(user, model.currentPassword);
+			if (isPasswordCorrect == false)
+				return Unauthorized();
+
+            await _userManager.ChangePasswordAsync(user, model.currentPassword, model.newInput);
+
+            return Ok();
+		}
+	}
 }

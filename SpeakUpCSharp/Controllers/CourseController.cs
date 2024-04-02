@@ -28,9 +28,34 @@ namespace SpeakUpCSharp.Controllers {
 				User = user
 			};
 			await _db.CourseLinks.AddAsync(courseLink);
-			await _db.SaveChangesAsync();
-
 			user.LastCourse = courseCode;
+
+			var sections = await _db.Sections.Where(s => s.CourseCode == courseCode).ToListAsync();
+			foreach (var section in sections) {
+				await _db.SectionLinks.AddAsync(new SectionLink {
+					SectionId = section.Id,
+					Section = section,
+					UserId = user.Id,
+					User = user,
+					CourseCode = courseCode,
+					Order = section.Order
+				});
+			}
+
+			var courseCards = await _db.CourseCards.Where(c => c.CourseCode == courseCode).ToListAsync();
+			foreach (var card in courseCards) {
+				await _db.CardLinks.AddAsync(new CardLink {
+					CardId = card.Id,
+					Card = card,
+					UserId = user.Id,
+					User = user,
+					Level = 0,
+					LastReviewDate = DateTime.Now,
+					NextReviewDate = DateTime.Now,
+					FlaggedAsImportant = false
+				});
+			}
+
 			await _db.SaveChangesAsync();
 
 			return Ok(courseCode);

@@ -4,6 +4,7 @@ using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq;
 using System.Text;
+using System.Text.Json.Serialization;
 using System.Threading.Tasks;
 
 namespace SpeakUp.Models
@@ -19,6 +20,7 @@ namespace SpeakUp.Models
 		[Required]
 		public int WordId { get; set; }
 		[ForeignKey("WordId")]
-		public virtual Card? Word { get; set; }
-	}
+		[JsonIgnore]
+		public virtual CourseCard? Word { get; set; }
+    }
 }

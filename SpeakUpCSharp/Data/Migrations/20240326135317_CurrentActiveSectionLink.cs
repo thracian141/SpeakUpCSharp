@@ -5,24 +5,24 @@
 namespace SpeakUpCSharp.Data.Migrations
 {
     /// <inheritdoc />
-    public partial class CardsDontHaveDescription : Migration
+    public partial class CurrentActiveSectionLink : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
         {
-            migrationBuilder.DropColumn(
-                name: "Description",
-                table: "Cards");
+            migrationBuilder.RenameColumn(
+                name: "Completed",
+                table: "SectionLinks",
+                newName: "CurrentActive");
         }
 
         /// <inheritdoc />
         protected override void Down(MigrationBuilder migrationBuilder)
         {
-            migrationBuilder.AddColumn<string>(
-                name: "Description",
-                table: "Cards",
-                type: "nvarchar(max)",
-                nullable: true);
+            migrationBuilder.RenameColumn(
+                name: "CurrentActive",
+                table: "SectionLinks",
+                newName: "Completed");
         }
     }
 }

@@ -4,7 +4,7 @@ using System.Text.Json.Serialization;
 
 namespace SpeakUp.Models
 {
-	public class Card
+	public class CourseCard
 	{
 		[Key]
 		public int Id { get; set; }
@@ -13,20 +13,17 @@ namespace SpeakUp.Models
         [Required]
         public string Back { get; set; }
 		[Required]
-		public int Level { get; set; } = 0;
-		[Required]
 		public int Difficulty { get; set; } = 0;
 		[Required]
+		public string PartOfSpeech { get; set; }
+		[Required]
 		public DateTime DateAdded { get; set; }
-        public DateTime? LastReviewDate { get; set; }
-        public DateTime? NextReviewDate { get; set; }
-        public int? DeckId { get; set; }
-        [ForeignKey("DeckId")]
-		[JsonIgnore]
-        public virtual Deck Deck { get; set; }
-		public int? SectionId { get; set; } //words dont necessarily have a sectionId
+		[Required]
+		public int SectionId { get; set; }
 		[ForeignKey("SectionId")]
 		[JsonIgnore]
 		public virtual Section? Section { get; set; }
+		[Required]
+		public string CourseCode { get; set; }
 	}
 }

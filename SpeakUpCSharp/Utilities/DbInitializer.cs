@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Identity;
+using Microsoft.EntityFrameworkCore;
 using SpeakUpCSharp.Data;
 using SpeakUpCSharp.Models;
 
@@ -30,7 +31,7 @@ namespace SpeakUpCSharp.Utilities {
 
 			},"Parola123?").GetAwaiter().GetResult();
 
-			var user = _db.Users.FirstOrDefault(u => u.Email=="admin@gmail.com");
+			var user = _db.Users.FirstOrDefaultAsync(u => u.Email=="admin@gmail.com").GetAwaiter().GetResult();
 			_userManager.AddToRoleAsync(user,ApplicationRoles.Admin).GetAwaiter().GetResult();
 		}
 	}

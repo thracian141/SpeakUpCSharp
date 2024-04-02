@@ -12,8 +12,8 @@ using SpeakUpCSharp.Data;
 namespace SpeakUpCSharp.Data.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20240313133423_DeckIdOfCardNotMandatoryNow")]
-    partial class DeckIdOfCardNotMandatoryNow
+    [Migration("20240322160628_SectionLinkHasCompletedProperty")]
+    partial class SectionLinkHasCompletedProperty
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -158,7 +158,7 @@ namespace SpeakUpCSharp.Data.Migrations
                     b.ToTable("AspNetUserTokens", (string)null);
                 });
 
-            modelBuilder.Entity("SpeakUp.Models.Card", b =>
+            modelBuilder.Entity("SpeakUp.Models.CourseCard", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -170,11 +170,12 @@ namespace SpeakUpCSharp.Data.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<string>("CourseCode")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<DateTime>("DateAdded")
                         .HasColumnType("datetime2");
-
-                    b.Property<int?>("DeckId")
-                        .HasColumnType("int");
 
                     b.Property<int>("Difficulty")
                         .HasColumnType("int");
@@ -183,25 +184,14 @@ namespace SpeakUpCSharp.Data.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<DateTime?>("LastReviewDate")
-                        .HasColumnType("datetime2");
-
-                    b.Property<int>("Level")
-                        .HasColumnType("int");
-
-                    b.Property<DateTime?>("NextReviewDate")
-                        .HasColumnType("datetime2");
-
-                    b.Property<int?>("SectionId")
+                    b.Property<int>("SectionId")
                         .HasColumnType("int");
 
                     b.HasKey("Id");
 
-                    b.HasIndex("DeckId");
-
                     b.HasIndex("SectionId");
 
-                    b.ToTable("Cards");
+                    b.ToTable("CourseCards");
                 });
 
             modelBuilder.Entity("SpeakUp.Models.DailyPerformance", b =>
@@ -410,6 +400,45 @@ namespace SpeakUpCSharp.Data.Migrations
                     b.ToTable("AspNetUsers", (string)null);
                 });
 
+            modelBuilder.Entity("SpeakUpCSharp.Models.CardLink", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<int>("CardId")
+                        .HasColumnType("int");
+
+                    b.Property<string>("CourseCode")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<bool>("FlaggedAsImportant")
+                        .HasColumnType("bit");
+
+                    b.Property<DateTime?>("LastReviewDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int>("Level")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime?>("NextReviewDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int?>("UserId")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("CardId");
+
+                    b.HasIndex("UserId");
+
+                    b.ToTable("CardLinks");
+                });
+
             modelBuilder.Entity("SpeakUpCSharp.Models.CourseLink", b =>
                 {
                     b.Property<int>("Id")
@@ -430,6 +459,88 @@ namespace SpeakUpCSharp.Data.Migrations
                     b.HasIndex("UserId");
 
                     b.ToTable("CourseLinks");
+                });
+
+            modelBuilder.Entity("SpeakUpCSharp.Models.DeckCard", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("Back")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime>("DateAdded")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int>("DeckId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("Difficulty")
+                        .HasColumnType("int");
+
+                    b.Property<bool>("FlaggedAsImportant")
+                        .HasColumnType("bit");
+
+                    b.Property<string>("Front")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime?>("LastReviewDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int>("Level")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime?>("NextReviewDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int?>("UserId")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("DeckId");
+
+                    b.HasIndex("UserId");
+
+                    b.ToTable("DeckCards");
+                });
+
+            modelBuilder.Entity("SpeakUpCSharp.Models.SectionLink", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<bool>("Completed")
+                        .HasColumnType("bit");
+
+                    b.Property<string>("CourseCode")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("Order")
+                        .HasColumnType("int");
+
+                    b.Property<int?>("SectionId")
+                        .HasColumnType("int");
+
+                    b.Property<int?>("UserId")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("SectionId");
+
+                    b.HasIndex("UserId");
+
+                    b.ToTable("SectionLinks");
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<int>", b =>
@@ -483,17 +594,13 @@ namespace SpeakUpCSharp.Data.Migrations
                         .IsRequired();
                 });
 
-            modelBuilder.Entity("SpeakUp.Models.Card", b =>
+            modelBuilder.Entity("SpeakUp.Models.CourseCard", b =>
                 {
-                    b.HasOne("SpeakUp.Models.Deck", "Deck")
-                        .WithMany()
-                        .HasForeignKey("DeckId");
-
                     b.HasOne("SpeakUp.Models.Section", "Section")
                         .WithMany()
-                        .HasForeignKey("SectionId");
-
-                    b.Navigation("Deck");
+                        .HasForeignKey("SectionId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
 
                     b.Navigation("Section");
                 });
@@ -533,13 +640,30 @@ namespace SpeakUpCSharp.Data.Migrations
 
             modelBuilder.Entity("SpeakUp.Models.Sentence", b =>
                 {
-                    b.HasOne("SpeakUp.Models.Card", "Word")
+                    b.HasOne("SpeakUp.Models.CourseCard", "Word")
                         .WithMany()
                         .HasForeignKey("WordId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.Navigation("Word");
+                });
+
+            modelBuilder.Entity("SpeakUpCSharp.Models.CardLink", b =>
+                {
+                    b.HasOne("SpeakUp.Models.CourseCard", "Card")
+                        .WithMany()
+                        .HasForeignKey("CardId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("SpeakUpCSharp.Models.ApplicationUser", "User")
+                        .WithMany()
+                        .HasForeignKey("UserId");
+
+                    b.Navigation("Card");
+
+                    b.Navigation("User");
                 });
 
             modelBuilder.Entity("SpeakUpCSharp.Models.CourseLink", b =>
@@ -549,6 +673,38 @@ namespace SpeakUpCSharp.Data.Migrations
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
+
+                    b.Navigation("User");
+                });
+
+            modelBuilder.Entity("SpeakUpCSharp.Models.DeckCard", b =>
+                {
+                    b.HasOne("SpeakUp.Models.Deck", "Deck")
+                        .WithMany()
+                        .HasForeignKey("DeckId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("SpeakUpCSharp.Models.ApplicationUser", "User")
+                        .WithMany()
+                        .HasForeignKey("UserId");
+
+                    b.Navigation("Deck");
+
+                    b.Navigation("User");
+                });
+
+            modelBuilder.Entity("SpeakUpCSharp.Models.SectionLink", b =>
+                {
+                    b.HasOne("SpeakUp.Models.Section", "Section")
+                        .WithMany()
+                        .HasForeignKey("SectionId");
+
+                    b.HasOne("SpeakUpCSharp.Models.ApplicationUser", "User")
+                        .WithMany()
+                        .HasForeignKey("UserId");
+
+                    b.Navigation("Section");
 
                     b.Navigation("User");
                 });
