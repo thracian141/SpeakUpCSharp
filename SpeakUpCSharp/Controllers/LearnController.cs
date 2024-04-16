@@ -34,10 +34,12 @@ namespace SpeakUpCSharp.Controllers {
 				.ThenByDescending(c => c.Level)
 				.ThenByDescending(c => c.NextReviewDate)
 				.Take(50).ToListAsync();
+			var cards = cardLinks.Select(l => l.Card).ToList();
 
 			List<Sentence> sentences = new List<Sentence>();
 			//for each cardLink, find a random sentence that has the same sentence.CardId as the cardLink.CardId
 			foreach (var cardLink in cardLinks) {
+				_logger.LogInformation("Card: " + cardLink.Card.Front);
 				var sentence = await _db.Sentences.Where(s => s.WordId == cardLink.CardId).OrderBy(r => Guid.NewGuid()).FirstOrDefaultAsync();
 				if (sentence == null)
 					sentence = new Sentence {
@@ -50,7 +52,7 @@ namespace SpeakUpCSharp.Controllers {
 				sentences.Add(sentence);
 			}
 
-			return new JsonResult(new { cardLinks, sentences });
+			return new JsonResult(new { cardLinks, sentences, cards });
 		}
 		[HttpGet("updateDeck")]
 		public async Task<IActionResult> UpdateDeck() {
