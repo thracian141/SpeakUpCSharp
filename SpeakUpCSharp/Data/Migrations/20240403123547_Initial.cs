@@ -295,6 +295,7 @@ namespace SpeakUpCSharp.Data.Migrations
                     Front = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     Back = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     Difficulty = table.Column<int>(type: "int", nullable: false),
+                    PartOfSpeech = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     DateAdded = table.Column<DateTime>(type: "datetime2", nullable: false),
                     SectionId = table.Column<int>(type: "int", nullable: false),
                     CourseCode = table.Column<string>(type: "nvarchar(max)", nullable: false)
@@ -308,6 +309,33 @@ namespace SpeakUpCSharp.Data.Migrations
                         principalTable: "Sections",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "SectionLinks",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    SectionId = table.Column<int>(type: "int", nullable: true),
+                    UserId = table.Column<int>(type: "int", nullable: true),
+                    CourseCode = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    Order = table.Column<int>(type: "int", nullable: false),
+                    CurrentActive = table.Column<bool>(type: "bit", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_SectionLinks", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_SectionLinks_AspNetUsers_UserId",
+                        column: x => x.UserId,
+                        principalTable: "AspNetUsers",
+                        principalColumn: "Id");
+                    table.ForeignKey(
+                        name: "FK_SectionLinks_Sections_SectionId",
+                        column: x => x.SectionId,
+                        principalTable: "Sections",
+                        principalColumn: "Id");
                 });
 
             migrationBuilder.CreateTable(
@@ -441,6 +469,16 @@ namespace SpeakUpCSharp.Data.Migrations
                 column: "OwnerId");
 
             migrationBuilder.CreateIndex(
+                name: "IX_SectionLinks_SectionId",
+                table: "SectionLinks",
+                column: "SectionId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_SectionLinks_UserId",
+                table: "SectionLinks",
+                column: "UserId");
+
+            migrationBuilder.CreateIndex(
                 name: "IX_Sections_LastEditorId",
                 table: "Sections",
                 column: "LastEditorId");
@@ -480,6 +518,9 @@ namespace SpeakUpCSharp.Data.Migrations
 
             migrationBuilder.DropTable(
                 name: "DeckCards");
+
+            migrationBuilder.DropTable(
+                name: "SectionLinks");
 
             migrationBuilder.DropTable(
                 name: "Sentences");

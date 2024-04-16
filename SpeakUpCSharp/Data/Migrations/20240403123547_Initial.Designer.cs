@@ -12,8 +12,8 @@ using SpeakUpCSharp.Data;
 namespace SpeakUpCSharp.Data.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20240322160628_SectionLinkHasCompletedProperty")]
-    partial class SectionLinkHasCompletedProperty
+    [Migration("20240403123547_Initial")]
+    partial class Initial
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -181,6 +181,10 @@ namespace SpeakUpCSharp.Data.Migrations
                         .HasColumnType("int");
 
                     b.Property<string>("Front")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("PartOfSpeech")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
@@ -518,12 +522,12 @@ namespace SpeakUpCSharp.Data.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
-                    b.Property<bool>("Completed")
-                        .HasColumnType("bit");
-
                     b.Property<string>("CourseCode")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
+
+                    b.Property<bool>("CurrentActive")
+                        .HasColumnType("bit");
 
                     b.Property<int>("Order")
                         .HasColumnType("int");
