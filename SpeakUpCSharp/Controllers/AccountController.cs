@@ -159,5 +159,8 @@ namespace SpeakUpCSharp.Controllers {
 
             return Ok();
 		}
+
+        [HttpGet("searchusers")]
+        public async Task<IActionResult> 
 	}
 }

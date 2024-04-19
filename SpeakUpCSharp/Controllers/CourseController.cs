@@ -52,13 +52,28 @@ namespace SpeakUpCSharp.Controllers {
 					Level = 0,
 					LastReviewDate = DateTime.Now,
 					NextReviewDate = DateTime.Now,
-					FlaggedAsImportant = false
+					FlaggedAsImportant = false,
+					CourseCode = courseCode
 				});
 			}
 
 			await _db.SaveChangesAsync();
 
 			return Ok(courseCode);
+		}
+
+		[HttpPost("changeactive")]
+		public async Task<IActionResult> ChangeActive([FromBody] string newCourse) {
+			var user = await _userManager.GetUserAsync(User);
+			if (user == null) { return NotFound("No user found"); }
+
+			if (user.LastCourse == newCourse)
+				return Ok("Already studying this course");
+			else {
+				user.LastCourse = newCourse;
+				await _db.SaveChangesAsync();
+				return Ok(newCourse);
+			}	
 		}
 
 		[HttpGet("getlast")]
