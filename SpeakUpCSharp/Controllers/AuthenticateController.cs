@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Mvc;
 using SpeakUp.Models;
 using SpeakUp.Services;
+using SpeakUpCSharp.Data;
 using SpeakUpCSharp.Models;
 using SpeakUpCSharp.Models.InputModels;
 
@@ -9,18 +10,19 @@ namespace SpeakUpCSharp.Controllers {
     [Route("authenticate")]
     [ApiController]
     public class AuthenticateController : ControllerBase {
-
+        private readonly ApplicationDbContext _db;
         private readonly SignInManager<ApplicationUser> _signInManager;
         private readonly UserManager<ApplicationUser> _userManager;
         private readonly ILogger<AuthenticateController> _logger;
         private readonly ITokenService _tokenService;
 
         public AuthenticateController(SignInManager<ApplicationUser> signInManager,UserManager<ApplicationUser> userManager,ILogger<AuthenticateController> logger
-        ,ITokenService tokenService) {
+        ,ITokenService tokenService, ApplicationDbContext db) {
             _tokenService=tokenService;
             _signInManager=signInManager;
             _userManager=userManager;
             _logger=logger;
+            _db = db;
         }
         [HttpPost("register")]
         public async Task<IActionResult> Register([FromBody] RegisterInputModel model) {
@@ -38,6 +40,8 @@ namespace SpeakUpCSharp.Controllers {
             if (!result.Succeeded) {
                 return BadRequest(result.Errors);
             }
+            await _db.SaveChangesAsync();
+            await _userManager.AddToRoleAsync(user,"User");
 
             var token = await _tokenService.GenerateToken(user);
             var cookieOptions = new CookieOptions {

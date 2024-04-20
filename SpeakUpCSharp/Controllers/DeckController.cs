@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -5,6 +6,7 @@ using SpeakUp.Models;
 using SpeakUpCSharp.Data;
 using SpeakUpCSharp.Models;
 using SpeakUpCSharp.Models.InputModels;
+using SpeakUpCSharp.Utilities;
 using System.Diagnostics;
 
 namespace SpeakUpCSharp.Controllers {
@@ -55,6 +57,16 @@ namespace SpeakUpCSharp.Controllers {
 			var list = await _db.Decks.Where(d => d.OwnerId == user.Id).ToListAsync();
 
 			_logger.LogInformation(list.ToString());
+			return new JsonResult(new { list });
+		}
+
+		[Authorize(Roles = ApplicationRoles.Admin)]
+		[HttpGet("search")]
+		public async Task<IActionResult> SearchDecks(string search) {
+			var searchNormalized = search.ToLower();
+			var list = await _db.Decks.Where(d => d.DeckName.ToLower().Contains(searchNormalized)).ToListAsync();
+			list.Concat(await _db.Decks.Where(d => d.DeckDescription.ToLower().Contains(searchNormalized)).ToListAsync());
+
 			return new JsonResult(new { list });
 		}
 	}
