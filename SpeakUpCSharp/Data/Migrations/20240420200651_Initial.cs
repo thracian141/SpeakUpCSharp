@@ -339,6 +339,33 @@ namespace SpeakUpCSharp.Data.Migrations
                 });
 
             migrationBuilder.CreateTable(
+                name: "BugReports",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    Text = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    CourseCode = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    ReporterId = table.Column<int>(type: "int", nullable: false),
+                    CardId = table.Column<int>(type: "int", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_BugReports", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_BugReports_AspNetUsers_ReporterId",
+                        column: x => x.ReporterId,
+                        principalTable: "AspNetUsers",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_BugReports_CourseCards_CardId",
+                        column: x => x.CardId,
+                        principalTable: "CourseCards",
+                        principalColumn: "Id");
+                });
+
+            migrationBuilder.CreateTable(
                 name: "CardLinks",
                 columns: table => new
                 {
@@ -429,6 +456,16 @@ namespace SpeakUpCSharp.Data.Migrations
                 filter: "[NormalizedUserName] IS NOT NULL");
 
             migrationBuilder.CreateIndex(
+                name: "IX_BugReports_CardId",
+                table: "BugReports",
+                column: "CardId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_BugReports_ReporterId",
+                table: "BugReports",
+                column: "ReporterId");
+
+            migrationBuilder.CreateIndex(
                 name: "IX_CardLinks_CardId",
                 table: "CardLinks",
                 column: "CardId");
@@ -506,6 +543,9 @@ namespace SpeakUpCSharp.Data.Migrations
 
             migrationBuilder.DropTable(
                 name: "AspNetUserTokens");
+
+            migrationBuilder.DropTable(
+                name: "BugReports");
 
             migrationBuilder.DropTable(
                 name: "CardLinks");

@@ -20,9 +20,10 @@ namespace SpeakUpCSharp.Utilities {
 			if (_db.Roles.Any(x => x.Name==ApplicationRoles.Admin))
 				return;
 
-			_roleManager.CreateAsync(new IdentityRole<int>(ApplicationRoles.Admin)).GetAwaiter().GetResult();
-			_roleManager.CreateAsync(new IdentityRole<int>(ApplicationRoles.Dev)).GetAwaiter().GetResult();
 			_roleManager.CreateAsync(new IdentityRole<int>(ApplicationRoles.User)).GetAwaiter().GetResult();
+			_roleManager.CreateAsync(new IdentityRole<int>(ApplicationRoles.Dev)).GetAwaiter().GetResult();
+			_roleManager.CreateAsync(new IdentityRole<int>(ApplicationRoles.Admin)).GetAwaiter().GetResult();
+			_roleManager.CreateAsync(new IdentityRole<int>(ApplicationRoles.SysAdmin)).GetAwaiter().GetResult();
 
 			_userManager.CreateAsync(new ApplicationUser {
 				UserName="sysadmin",
@@ -32,7 +33,7 @@ namespace SpeakUpCSharp.Utilities {
 			},"Parola123?").GetAwaiter().GetResult();
 
 			var user = _db.Users.FirstOrDefaultAsync(u => u.Email=="admin@gmail.com").GetAwaiter().GetResult();
-			_userManager.AddToRoleAsync(user,ApplicationRoles.Admin).GetAwaiter().GetResult();
+			_userManager.AddToRoleAsync(user,ApplicationRoles.SysAdmin).GetAwaiter().GetResult();
 		}
 	}
 }

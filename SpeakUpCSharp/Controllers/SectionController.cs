@@ -31,6 +31,9 @@ namespace SpeakUpCSharp.Controllers {
 		public async Task<IActionResult> ListByCourse(string courseCode) {
 			_logger.LogInformation("Method called");
 			var sections = await _db.Sections.Where(s => s.CourseCode == courseCode).OrderBy(s => s.Order).ToListAsync();
+			if (sections.Count == 0)
+				return new JsonResult(null);
+			;
 
 			return new JsonResult( new { sections });
 		}
@@ -152,8 +155,12 @@ namespace SpeakUpCSharp.Controllers {
 			if (user == null) { return Unauthorized("User error!"); }
 
 			var links = await _db.SectionLinks.Where(l => l.CourseCode == courseCode && l.UserId == user.Id).Include(l => l.Section).ToListAsync();
-			if (!links.Any(l => l.CurrentActive))
-				links.Where(l => l.Order == 1).First().CurrentActive = true;
+			if (!links.Any(l => l.CurrentActive)) {
+				var firstLink = links.Where(l => l.Order == 1).FirstOrDefault();
+				if (firstLink != null) {
+					firstLink.CurrentActive = true;
+				}
+			}
 
 			await _db.SaveChangesAsync();
 

@@ -56,7 +56,8 @@ namespace SpeakUpCSharp.Controllers {
         [HttpGet("checkifadmin")]
         public async Task<IActionResult> CheckIfAdmin() {
             var user = await _userManager.GetUserAsync(User);
-            bool isAdmin = await _userManager.IsInRoleAsync(user, "Admin");
+            bool isAdmin = await _userManager.IsInRoleAsync(user, ApplicationRoles.Admin) ||
+                await _userManager.IsInRoleAsync(user, ApplicationRoles.SysAdmin);
             if (isAdmin)
                 return Ok();
             else
@@ -162,8 +163,8 @@ namespace SpeakUpCSharp.Controllers {
             return Ok();
 		}
 
-        [Authorize(Roles = ApplicationRoles.Admin)]
-        [HttpGet("searchAccounts")]
+		[Authorize(Roles = $"{ApplicationRoles.Admin},{ApplicationRoles.SysAdmin}")]
+		[HttpGet("searchAccounts")]
         public async Task<IActionResult> SearchAccounts(string search) {
             var thisuser = await _userManager.GetUserAsync(User);
             var sysadmin = await _db.Users.Where(u => u.UserName == "sysadmin").FirstOrDefaultAsync();
@@ -187,8 +188,8 @@ namespace SpeakUpCSharp.Controllers {
 			return new JsonResult(new { users, userRoles });
 		}
 
-        [Authorize(Roles = ApplicationRoles.Admin)]
-        [HttpPost("deleteaccount")]
+		[Authorize(Roles = $"{ApplicationRoles.Admin},{ApplicationRoles.SysAdmin}")]
+		[HttpPost("deleteaccount")]
         public async Task<IActionResult> DeleteAccount(int userId) {
 			var user = await _db.ApplicationUsers.FindAsync(userId);
 			if (user == null)
@@ -225,8 +226,8 @@ namespace SpeakUpCSharp.Controllers {
                     return Unauthorized();
             }
         }
-        [Authorize(Roles = $"{ApplicationRoles.Admin},{ApplicationRoles.Dev}")]
-        [HttpGet("getrole")]
+		[Authorize(Roles = $"{ApplicationRoles.Admin},{ApplicationRoles.Dev},{ApplicationRoles.SysAdmin}")]
+		[HttpGet("getrole")]
         public async Task<IActionResult> GetRole(int userId) {
             var user = await _db.ApplicationUsers.FindAsync(userId);
 			if (user == null)
@@ -247,8 +248,8 @@ namespace SpeakUpCSharp.Controllers {
 			return Ok($"{role}");
 		}
 
-        [Authorize(Roles = ApplicationRoles.Admin)]
-        [HttpPost("makedev")]
+		[Authorize(Roles = $"{ApplicationRoles.Admin},{ApplicationRoles.SysAdmin}")]
+		[HttpPost("makedev")]
         public async Task<IActionResult> MakeDev(int userId) {
 			var user = await _db.ApplicationUsers.FindAsync(userId);
             if (user == null)

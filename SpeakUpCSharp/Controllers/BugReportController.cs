@@ -22,7 +22,8 @@ namespace SpeakUpCSharp.Controllers {
 		[HttpGet("checkifdev")]
 		public async Task<IActionResult> CheckIfDev() {
 			var user = await _userManager.GetUserAsync(User);
-			bool isDev = await _userManager.IsInRoleAsync(user, ApplicationRoles.Admin);
+			bool isDev = await _userManager.IsInRoleAsync(user, ApplicationRoles.Admin) ||
+				await _userManager.IsInRoleAsync(user, ApplicationRoles.SysAdmin);
 			if (!isDev) 
 				isDev = await _userManager.IsInRoleAsync(user, ApplicationRoles.Dev);
 
@@ -57,7 +58,7 @@ namespace SpeakUpCSharp.Controllers {
 
 			return Ok();
 		}
-		[Authorize(Roles = $"{ApplicationRoles.Admin},{ApplicationRoles.Dev}")]
+		[Authorize(Roles = $"{ApplicationRoles.Admin},{ApplicationRoles.Dev},{ApplicationRoles.SysAdmin}")]
 		[HttpGet("listbugs")]
 		public async Task<IActionResult> ListBugs(string courseCode) {
 			var user = await _userManager.GetUserAsync(User);
@@ -73,7 +74,7 @@ namespace SpeakUpCSharp.Controllers {
 			}
 		}
 
-		[Authorize(Roles = $"{ApplicationRoles.Admin},{ApplicationRoles.Dev}")]
+		[Authorize(Roles = $"{ApplicationRoles.Admin},{ApplicationRoles.Dev},{ApplicationRoles.SysAdmin}")]
 		[HttpPost("resolvebug")]
 		public async Task<IActionResult> ResolveBug(int id) {
 			var bug = await _db.BugReports.FindAsync(id);

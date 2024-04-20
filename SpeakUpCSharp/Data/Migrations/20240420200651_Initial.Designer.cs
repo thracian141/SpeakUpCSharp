@@ -12,7 +12,7 @@ using SpeakUpCSharp.Data;
 namespace SpeakUpCSharp.Data.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20240403123547_Initial")]
+    [Migration("20240420200651_Initial")]
     partial class Initial
     {
         /// <inheritdoc />
@@ -404,6 +404,37 @@ namespace SpeakUpCSharp.Data.Migrations
                     b.ToTable("AspNetUsers", (string)null);
                 });
 
+            modelBuilder.Entity("SpeakUpCSharp.Models.BugReport", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<int?>("CardId")
+                        .HasColumnType("int");
+
+                    b.Property<string>("CourseCode")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("ReporterId")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Text")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("CardId");
+
+                    b.HasIndex("ReporterId");
+
+                    b.ToTable("BugReports");
+                });
+
             modelBuilder.Entity("SpeakUpCSharp.Models.CardLink", b =>
                 {
                     b.Property<int>("Id")
@@ -651,6 +682,23 @@ namespace SpeakUpCSharp.Data.Migrations
                         .IsRequired();
 
                     b.Navigation("Word");
+                });
+
+            modelBuilder.Entity("SpeakUpCSharp.Models.BugReport", b =>
+                {
+                    b.HasOne("SpeakUp.Models.CourseCard", "Card")
+                        .WithMany()
+                        .HasForeignKey("CardId");
+
+                    b.HasOne("SpeakUpCSharp.Models.ApplicationUser", "Reporter")
+                        .WithMany()
+                        .HasForeignKey("ReporterId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Card");
+
+                    b.Navigation("Reporter");
                 });
 
             modelBuilder.Entity("SpeakUpCSharp.Models.CardLink", b =>
