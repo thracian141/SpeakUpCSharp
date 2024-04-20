@@ -59,7 +59,6 @@ namespace SpeakUpCSharp.Controllers {
             else
                 return Unauthorized();
         }
-
         [HttpGet("allInfo")]
         public async Task<IActionResult> GetAllInfo() {
             var user = await _userManager.GetUserAsync(User);

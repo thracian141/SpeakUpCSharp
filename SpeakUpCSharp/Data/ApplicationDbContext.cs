@@ -18,5 +18,6 @@ namespace SpeakUpCSharp.Data {
 		public DbSet<Sentence> Sentences { get; set; }
 		public DbSet<CourseLink> CourseLinks { get; set; }
 		public DbSet<CardLink> CardLinks { get; set; }
+		public DbSet<BugReport> BugReports { get; set; }
 	}
 }

@@ -70,6 +70,8 @@ if (app.Environment.IsDevelopment()) {
 	app.UseHsts();
 }
 
+app.UseRouting();
+
 app.UseAuthentication();
 app.UseAuthorization();
 
@@ -77,8 +79,6 @@ app.UseHttpsRedirection();
 app.UseStaticFiles();
 
 //DataSeeding();
-
-app.UseRouting();
 
 app.UseCors(SvelteOrigins);
 
