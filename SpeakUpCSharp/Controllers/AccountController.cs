@@ -1,10 +1,13 @@
-﻿using Microsoft.AspNetCore.Identity;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using SpeakUp.Models;
 using SpeakUpCSharp.Data;
 using SpeakUpCSharp.Models;
 using SpeakUpCSharp.Models.InputModels;
 using SpeakUpCSharp.Services;
+using SpeakUpCSharp.Utilities;
 
 namespace SpeakUpCSharp.Controllers {
 	[ApiController]
@@ -158,5 +161,117 @@ namespace SpeakUpCSharp.Controllers {
 
             return Ok();
 		}
+
+        [Authorize(Roles = ApplicationRoles.Admin)]
+        [HttpGet("searchAccounts")]
+        public async Task<IActionResult> SearchAccounts(string search) {
+            var thisuser = await _userManager.GetUserAsync(User);
+            var sysadmin = await _db.Users.Where(u => u.UserName == "sysadmin").FirstOrDefaultAsync();
+            var searchNormalized = search.ToLower();
+
+			var users = await _db.Users
+                .Where(u => 
+                    u.UserName.ToLower().Contains(searchNormalized) || 
+                    u.DisplayName.Contains(searchNormalized) ||
+                    u.Email.Contains(searchNormalized))
+                .ToListAsync();
+            users.Remove(thisuser);
+            users.Remove(sysadmin);
+
+			var userRoles = new List<string>();
+			foreach (var u in users) {
+                var roles = await _userManager.GetRolesAsync(u);
+                userRoles.Add(roles.FirstOrDefault());
+			}
+
+			return new JsonResult(new { users, userRoles });
+		}
+
+        [Authorize(Roles = ApplicationRoles.Admin)]
+        [HttpPost("deleteaccount")]
+        public async Task<IActionResult> DeleteAccount(int userId) {
+			var user = await _db.ApplicationUsers.FindAsync(userId);
+			if (user == null)
+				return BadRequest();
+
+			await _userManager.DeleteAsync(user);
+            await _db.SaveChangesAsync();
+
+			return Ok();
+		}
+        [HttpGet("amhigherrole")]
+        public async Task<IActionResult> AmHigherRole(int than) {
+            var thisuser = await _userManager.GetUserAsync(User);
+            var otheruser = await _db.ApplicationUsers.FindAsync(than);
+            if (thisuser == null || otheruser == null)
+				return BadRequest();
+
+            var thisRole = await _userManager.GetRolesAsync(thisuser);
+			var otherRole = await _userManager.GetRolesAsync(otheruser);
+			switch (thisRole.LastOrDefault(), otherRole.LastOrDefault()) {
+                case ("Admin", "User"):
+					return Ok();
+                case ("Admin", "Dev"):
+                    return Ok();
+                case ("SysAdmin", "Admin"):
+                    return Ok();
+                case ("SysAdmin", "Dev"):
+					return Ok();
+                case ("SysAdmin", "User"):
+                    return Ok();
+                case ("Dev", "User"):
+					return Ok();
+                default:
+                    return Unauthorized();
+            }
+        }
+        [Authorize(Roles = $"{ApplicationRoles.Admin},{ApplicationRoles.Dev}")]
+        [HttpGet("getrole")]
+        public async Task<IActionResult> GetRole(int userId) {
+            var user = await _db.ApplicationUsers.FindAsync(userId);
+			if (user == null)
+				return BadRequest();
+
+			var roles = await _userManager.GetRolesAsync(user);
+            var role = roles.FirstOrDefault();
+            return Ok($"{role}");
+        }
+        [HttpGet("getownrole")]
+        public async Task<IActionResult> GetOwnRole() {
+			var user = await _userManager.GetUserAsync(User);
+			if (user == null)
+				return BadRequest();
+
+			var roles = await _userManager.GetRolesAsync(user);
+			var role = roles.LastOrDefault();
+			return Ok($"{role}");
+		}
+
+        [Authorize(Roles = ApplicationRoles.Admin)]
+        [HttpPost("makedev")]
+        public async Task<IActionResult> MakeDev(int userId) {
+			var user = await _db.ApplicationUsers.FindAsync(userId);
+            if (user == null)
+                return BadRequest();
+
+            await _userManager.AddToRoleAsync(user, ApplicationRoles.Dev);
+            await _userManager.RemoveFromRoleAsync(user, ApplicationRoles.User);
+
+            return Ok();
+        }
+
+        [Authorize(Roles = "SysAdmin")]
+        [HttpPost("makeadmin")]
+        public async Task<IActionResult> MakeAdmin(int userId) {
+            var user = await _db.ApplicationUsers.FindAsync(userId);
+            if (user == null)
+				return BadRequest();
+
+            await _userManager.AddToRoleAsync(user, ApplicationRoles.Admin);
+            await _userManager.RemoveFromRoleAsync(user, ApplicationRoles.Dev);
+            await _userManager.RemoveFromRoleAsync(user, ApplicationRoles.User);
+
+            return Ok();
+        }
 	}
 }

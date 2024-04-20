@@ -52,7 +52,8 @@ namespace SpeakUpCSharp.Controllers {
 					Level = 0,
 					LastReviewDate = DateTime.Now,
 					NextReviewDate = DateTime.Now,
-					FlaggedAsImportant = false
+					FlaggedAsImportant = false,
+					CourseCode = courseCode
 				});
 			}
 
