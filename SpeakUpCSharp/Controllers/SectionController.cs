@@ -150,19 +150,14 @@ namespace SpeakUpCSharp.Controllers {
 		}
 
 		[HttpGet("linksPerCourse")]
-		public async Task<IActionResult> LinksPerCourse(string courseCode) {
+		public async Task<IActionResult> LinksPerCourse() {
 			var user = await _userManager.GetUserAsync(User);
 			if (user == null) { return Unauthorized("User error!"); }
 
-			var links = await _db.SectionLinks.Where(l => l.CourseCode == courseCode && l.UserId == user.Id).Include(l => l.Section).ToListAsync();
-			if (!links.Any(l => l.CurrentActive)) {
-				var firstLink = links.Where(l => l.Order == 1).FirstOrDefault();
-				if (firstLink != null) {
-					firstLink.CurrentActive = true;
-				}
-			}
-
-			await _db.SaveChangesAsync();
+			var links = await _db.SectionLinks
+				.Where(l => l.CourseCode == user.LastCourse && l.UserId == user.Id)
+				.Include(l => l.Section)
+				.ToListAsync();
 
 			return new JsonResult(new { links });
 		}

@@ -12,7 +12,7 @@ using SpeakUpCSharp.Data;
 namespace SpeakUpCSharp.Data.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20240420200651_Initial")]
+    [Migration("20240421014719_Initial")]
     partial class Initial
     {
         /// <inheritdoc />
@@ -482,6 +482,9 @@ namespace SpeakUpCSharp.Data.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
+                    b.Property<int>("ActiveSection")
+                        .HasColumnType("int");
+
                     b.Property<string>("CourseCode")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
@@ -557,7 +560,7 @@ namespace SpeakUpCSharp.Data.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<bool>("CurrentActive")
+                    b.Property<bool>("Finished")
                         .HasColumnType("bit");
 
                     b.Property<int>("Order")

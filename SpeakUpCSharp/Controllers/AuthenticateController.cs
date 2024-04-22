@@ -1,10 +1,14 @@
 ﻿using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using SpeakUp.Models;
 using SpeakUp.Services;
 using SpeakUpCSharp.Data;
 using SpeakUpCSharp.Models;
 using SpeakUpCSharp.Models.InputModels;
+using System.ComponentModel.DataAnnotations.Schema;
+using System.ComponentModel.DataAnnotations;
+using Microsoft.EntityFrameworkCore;
 
 namespace SpeakUpCSharp.Controllers {
     [Route("authenticate")]
@@ -33,7 +37,8 @@ namespace SpeakUpCSharp.Controllers {
                 DisplayName=model.DisplayName,
                 ProfilePictureUrl=null,
                 AccountCreatedDate=DateTime.UtcNow,
-                LastDeck=null
+                LastDeck=null,
+                DailyWordGoal = 10
             };
             var result = await _userManager.CreateAsync(user,model.Password);
 
@@ -49,6 +54,15 @@ namespace SpeakUpCSharp.Controllers {
                 Expires=DateTime.UtcNow.AddDays(1)
             };
             Response.Cookies.Append("token",token,cookieOptions);
+
+            var dailyPerformance = new DailyPerformance {
+                Id = 0,
+                Date = DateTime.UtcNow,
+                UserId = user.Id,
+                User = user
+	        };
+            await _db.DailyPerformances.AddAsync(dailyPerformance);
+            await _db.SaveChangesAsync();
 
             return new JsonResult(new { token });
         }
@@ -73,6 +87,20 @@ namespace SpeakUpCSharp.Controllers {
                 Expires=DateTime.UtcNow.AddDays(1)
             };
             Response.Cookies.Append("token",token,cookieOptions);
+
+            var currentDailyPerformance = await _db.DailyPerformances
+                .Where(dp => dp.UserId == user.Id && dp.Date.Date == DateTime.UtcNow.Date)
+                .FirstOrDefaultAsync();
+            if (currentDailyPerformance == null) {
+                var dailyPerformance = new DailyPerformance {
+					Id = 0,
+					Date = DateTime.UtcNow,
+					UserId = user.Id,
+					User = user
+				};
+                await _db.DailyPerformances.AddAsync(dailyPerformance);
+                await _db.SaveChangesAsync();
+            }
 
             return new JsonResult(new { token });
         }

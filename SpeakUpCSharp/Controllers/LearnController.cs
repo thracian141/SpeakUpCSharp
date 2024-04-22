@@ -4,6 +4,7 @@ using Microsoft.EntityFrameworkCore;
 using SpeakUp.Models;
 using SpeakUpCSharp.Data;
 using SpeakUpCSharp.Models;
+using SpeakUpCSharp.Models.InputModels;
 using static System.Net.Mime.MediaTypeNames;
 
 namespace SpeakUpCSharp.Controllers {
@@ -19,60 +20,14 @@ namespace SpeakUpCSharp.Controllers {
 			_db = db;
 			_userManager = userManager;
 			_logger = logger;
-        }
-
-        [HttpGet("updateCourse")]
-		public async Task<IActionResult> UpdateCourse() {
-			var user = await _userManager.GetUserAsync(User);
-			if (user == null) { return Unauthorized(); }
-
-			var activeSectionId = _db.SectionLinks.Where(sl => sl.CourseCode == user.LastCourse && sl.CurrentActive)
-				.Select(sl => sl.SectionId).FirstOrDefault();
-			var cardLinks = await _db.CardLinks.Where(l => l.CourseCode == user.LastCourse && l.Card.SectionId == activeSectionId && l.NextReviewDate <= DateTime.UtcNow)
-				.Include(c => c.Card)
-				.OrderByDescending(l => l.Card.Difficulty)
-				.ThenByDescending(c => c.Level)
-				.ThenByDescending(c => c.NextReviewDate)
-				.Take(50).ToListAsync();
-			var cards = cardLinks.Select(l => l.Card).ToList();
-
-			List<Sentence> sentences = new List<Sentence>();
-			//for each cardLink, find a random sentence that has the same sentence.CardId as the cardLink.CardId
-			foreach (var cardLink in cardLinks) {
-				_logger.LogInformation("Card: " + cardLink.Card.Front);
-				var sentence = await _db.Sentences.Where(s => s.WordId == cardLink.CardId).OrderBy(r => Guid.NewGuid()).FirstOrDefaultAsync();
-				if (sentence == null)
-					sentence = new Sentence {
-						Id = 0,
-						Front = cardLink.Card.Front,
-						Back = cardLink.Card.Back,
-						WordId = cardLink.CardId,
-						Word = cardLink.Card
-					};
-				sentences.Add(sentence);
-			}
-
-			return new JsonResult(new { cardLinks, sentences, cards });
-		}
-		[HttpGet("updateDeck")]
-		public async Task<IActionResult> UpdateDeck() {
-			var user = await _userManager.GetUserAsync(User);
-			if (user == null) { return Unauthorized(); }
-
-			var cards = await _db.DeckCards.Where(c => c.DeckId == user.LastDeck && c.NextReviewDate <= DateTime.UtcNow)
-				.OrderByDescending(c => c.Difficulty)
-				.ThenByDescending(c => c.Level)
-				.ThenByDescending(c => c.NextReviewDate)
-				.Take(50).ToListAsync();
-
-			return new JsonResult(new { cards });
 		}
 		[HttpGet("learningDeck")]
 		public async Task<IActionResult> LearningDeck() {
 			bool[] learningDeckLearningCourse = [false, false];
 			var user = await _userManager.GetUserAsync(User);
 
-			if (user == null) return Unauthorized();
+			if (user == null)
+				return Unauthorized();
 
 			if (user.LastDeck != null) {
 				learningDeckLearningCourse[0] = true;
@@ -82,6 +37,58 @@ namespace SpeakUpCSharp.Controllers {
 			}
 
 			return new JsonResult(new { learningDeckLearningCourse });
+		}
+
+		[HttpGet("nextcoursecard")] 
+		public async Task<IActionResult> NextCourseCard() {
+			_logger.LogCritical("NEXT COURSE CARD METHOD REACHED");
+			var user = await _userManager.GetUserAsync(User);
+			var dailyPerformance = await _db.DailyPerformances.Where(dp => dp.UserId == user.Id).FirstOrDefaultAsync();
+
+			int newWordsRemaining = user.DailyWordGoal - dailyPerformance.NewWords;
+
+			if (newWordsRemaining > 0) { // The User must learn today's new words
+				var newCards = await _db.CardLinks
+					.Where(l => l.UserId == user.Id && l.CourseCode == user.LastCourse && l.Level == 0)
+					.Include(c => c.Card)
+					.OrderBy(l => l.Card.Difficulty)
+					.Take(newWordsRemaining).ToListAsync();
+				var cardLink = newCards.FirstOrDefault();
+				var card = cardLink.Card;
+				var sentence = await _db.Sentences.Where(s => s.WordId == card.Id).OrderBy(s => Guid.NewGuid()).FirstOrDefaultAsync();
+				if (sentence == null) sentence = new Sentence { Front = card.Front, Back = card.Back, Id = 0, WordId = card.Id };
+
+				return new JsonResult(new { cardLink, card, sentence });
+			} 
+			else { // Already passed through the new words for today
+				int reviewWordsRemaining = (user.DailyWordGoal * 5) - dailyPerformance.WordsGuessedCount;
+				var reviewCards = await _db.CardLinks
+					.Where(l => l.UserId == user.Id && l.CourseCode == user.LastCourse && l.Level > 0 && l.NextReviewDate <= DateTime.UtcNow)
+					.Include(c => c.Card)
+					.OrderBy(l => l.Card.Difficulty)
+					.ThenBy(l => l.Level)
+					.Take(reviewWordsRemaining).ToListAsync();
+				var cardLink = reviewCards.FirstOrDefault();
+				var card = cardLink.Card;
+				var sentence = await _db.Sentences.Where(s => s.WordId == card.Id).OrderBy(s => Guid.NewGuid()).FirstOrDefaultAsync();
+				if (sentence == null) sentence = new Sentence { Front = card.Front, Back = card.Back, Id = 0, WordId = card.Id };
+
+				return new JsonResult(new { cardLink, card, sentence });
+			}
+		}
+
+		[HttpPost("levelcoursecard")]
+		public async Task<IActionResult> LevelCourseCard([FromBody] LevelCardInputModel levelModel) {
+			if (levelModel.Correct) {
+				int levelIncrement = 6;
+				double diffIncTemp = levelModel.Link.Card.Difficulty / 10;
+				double difficultyIncrement = Math.Round(diffIncTemp, 1);
+				levelIncrement 
+
+
+			} else {
+
+			}
 		}
 	}
 }

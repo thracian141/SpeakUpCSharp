@@ -170,7 +170,8 @@ namespace SpeakUpCSharp.Data.Migrations
                     Id = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
                     CourseCode = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    UserId = table.Column<int>(type: "int", nullable: false)
+                    UserId = table.Column<int>(type: "int", nullable: false),
+                    ActiveSection = table.Column<int>(type: "int", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -321,7 +322,7 @@ namespace SpeakUpCSharp.Data.Migrations
                     UserId = table.Column<int>(type: "int", nullable: true),
                     CourseCode = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     Order = table.Column<int>(type: "int", nullable: false),
-                    CurrentActive = table.Column<bool>(type: "bit", nullable: false)
+                    Finished = table.Column<bool>(type: "bit", nullable: false)
                 },
                 constraints: table =>
                 {

@@ -19,6 +19,6 @@ namespace SpeakUpCSharp.Models {
 		[Required]
 		public int Order { get; set; }
 		[Required]
-		public bool CurrentActive { get; set; } = false;
+		public bool Finished { get; set; } = false;
 	}
 }

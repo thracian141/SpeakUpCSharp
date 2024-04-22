@@ -13,5 +13,7 @@ namespace SpeakUpCSharp.Models {
 		public DateTime AccountCreatedDate { get; set; }
 		public int? LastDeck { get; set; }
 		public string? LastCourse { get; set; }
+		[Required]
+		public int DailyWordGoal { get; set; } = 10;
 	}
 }

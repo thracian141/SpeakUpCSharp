@@ -21,6 +21,8 @@ namespace SpeakUp.Models
         public int WordsLearnedCount { get; set; } = 0;
         [Required]
         public int MinutesSpentLearning { get; set; } = 0;
+		[Required]
+		public int NewWords { get; set; } = 0;
         [Required]
         public int UserId { get; set; }
 		[ForeignKey("UserId")]
