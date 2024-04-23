@@ -5,7 +5,7 @@ using SpeakUp.Models;
 using SpeakUpCSharp.Data;
 using SpeakUpCSharp.Models;
 using SpeakUpCSharp.Models.InputModels;
-using static System.Net.Mime.MediaTypeNames;
+using SpeakUpCSharp.Services;
 
 namespace SpeakUpCSharp.Controllers {
 	[ApiController]
@@ -14,12 +14,16 @@ namespace SpeakUpCSharp.Controllers {
 		private readonly ApplicationDbContext _db;
 		private readonly UserManager<ApplicationUser> _userManager;
 		private readonly ILogger<AccountController> _logger;
+		private readonly IReviewDateService _reviewDate;
+		private readonly IDailyPerformanceService _daily;
 
 		public LearnController(ApplicationDbContext db, UserManager<ApplicationUser> userManager,
-		ILogger<AccountController> logger) {
+		ILogger<AccountController> logger, IReviewDateService reviewDate, IDailyPerformanceService daily) {
 			_db = db;
 			_userManager = userManager;
 			_logger = logger;
+			_reviewDate = reviewDate;
+			_daily = daily;
 		}
 		[HttpGet("learningDeck")]
 		public async Task<IActionResult> LearningDeck() {
@@ -43,7 +47,7 @@ namespace SpeakUpCSharp.Controllers {
 		public async Task<IActionResult> NextCourseCard() {
 			_logger.LogCritical("NEXT COURSE CARD METHOD REACHED");
 			var user = await _userManager.GetUserAsync(User);
-			var dailyPerformance = await _db.DailyPerformances.Where(dp => dp.UserId == user.Id).FirstOrDefaultAsync();
+			var dailyPerformance = await _daily.GetDailyPerformance(user.Id);
 
 			int newWordsRemaining = user.DailyWordGoal - dailyPerformance.NewWords;
 
@@ -79,16 +83,23 @@ namespace SpeakUpCSharp.Controllers {
 
 		[HttpPost("levelcoursecard")]
 		public async Task<IActionResult> LevelCourseCard([FromBody] LevelCardInputModel levelModel) {
+			var cardLink = await _db.CardLinks.FindAsync(levelModel.LinkId);
+			if (cardLink == null) return NotFound();
 			if (levelModel.Correct) {
-				int levelIncrement = 6;
-				double diffIncTemp = levelModel.Link.Card.Difficulty / 10;
-				double difficultyIncrement = Math.Round(diffIncTemp, 1);
-				levelIncrement 
-
-
+				if (cardLink.Level == 0) {
+					await _daily.AddNewWord((int)cardLink.UserId);
+				}
+				int levelIncrement = 6 - (int)Math.Round((double)levelModel.Difficulty / 2, 1);
+				cardLink.Level += levelIncrement;
+				cardLink.NextReviewDate = _reviewDate.CorrectAnswerGetReviewDate(cardLink.Level);
+				cardLink.LastReviewDate = DateTime.UtcNow;
+				await _daily.AddGuessedWord((int)cardLink.UserId);
 			} else {
-
+				cardLink.NextReviewDate = _reviewDate.WrongAnswerGetReviewDate();
 			}
+
+			await _db.SaveChangesAsync();
+			return Ok();
 		}
 	}
 }

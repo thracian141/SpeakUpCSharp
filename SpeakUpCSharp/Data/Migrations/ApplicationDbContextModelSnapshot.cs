@@ -218,9 +218,6 @@ namespace SpeakUpCSharp.Data.Migrations
                     b.Property<int>("WordsGuessedCount")
                         .HasColumnType("int");
 
-                    b.Property<int>("WordsLearnedCount")
-                        .HasColumnType("int");
-
                     b.HasKey("Id");
 
                     b.HasIndex("UserId");
