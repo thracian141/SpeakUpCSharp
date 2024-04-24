@@ -21,15 +21,6 @@ namespace SpeakUpCSharp.Services {
 
             return dailyPerformance;
 		}
-        public async Task<DailyPerformance> GetDailyPerformance(ApplicationUser user) {
-			var dailyPerformance = await _db.DailyPerformances
-				.Where(dp => dp.UserId == user.Id && dp.Date.Date == DateTime.UtcNow.Date)
-				.FirstOrDefaultAsync();
-			if (dailyPerformance == null)
-				dailyPerformance = await CreateDailyPerformance(user.Id);
-
-			return dailyPerformance;
-		}
 
         public async Task<DailyPerformance> CreateDailyPerformance(int userId) {
             var user = await _db.ApplicationUsers.FindAsync(userId);

@@ -192,7 +192,7 @@ namespace SpeakUpCSharp.Data.Migrations
 
                     b.HasIndex("SectionId");
 
-                    b.ToTable("CourseCards");
+                    b.ToTable("CourseCards", (string)null);
                 });
 
             modelBuilder.Entity("SpeakUp.Models.DailyPerformance", b =>
@@ -222,7 +222,7 @@ namespace SpeakUpCSharp.Data.Migrations
 
                     b.HasIndex("UserId");
 
-                    b.ToTable("DailyPerformances");
+                    b.ToTable("DailyPerformances", (string)null);
                 });
 
             modelBuilder.Entity("SpeakUp.Models.Deck", b =>
@@ -253,7 +253,7 @@ namespace SpeakUpCSharp.Data.Migrations
 
                     b.HasIndex("OwnerId");
 
-                    b.ToTable("Decks");
+                    b.ToTable("Decks", (string)null);
                 });
 
             modelBuilder.Entity("SpeakUp.Models.Section", b =>
@@ -288,7 +288,7 @@ namespace SpeakUpCSharp.Data.Migrations
 
                     b.HasIndex("LastEditorId");
 
-                    b.ToTable("Sections");
+                    b.ToTable("Sections", (string)null);
                 });
 
             modelBuilder.Entity("SpeakUp.Models.Sentence", b =>
@@ -314,7 +314,7 @@ namespace SpeakUpCSharp.Data.Migrations
 
                     b.HasIndex("WordId");
 
-                    b.ToTable("Sentences");
+                    b.ToTable("Sentences", (string)null);
                 });
 
             modelBuilder.Entity("SpeakUpCSharp.Models.ApplicationUser", b =>
@@ -432,7 +432,7 @@ namespace SpeakUpCSharp.Data.Migrations
 
                     b.HasIndex("ReporterId");
 
-                    b.ToTable("BugReports");
+                    b.ToTable("BugReports", (string)null);
                 });
 
             modelBuilder.Entity("SpeakUpCSharp.Models.CardLink", b =>
@@ -471,7 +471,7 @@ namespace SpeakUpCSharp.Data.Migrations
 
                     b.HasIndex("UserId");
 
-                    b.ToTable("CardLinks");
+                    b.ToTable("CardLinks", (string)null);
                 });
 
             modelBuilder.Entity("SpeakUpCSharp.Models.CourseLink", b =>
@@ -493,7 +493,7 @@ namespace SpeakUpCSharp.Data.Migrations
 
                     b.HasIndex("UserId");
 
-                    b.ToTable("CourseLinks");
+                    b.ToTable("CourseLinks", (string)null);
                 });
 
             modelBuilder.Entity("SpeakUpCSharp.Models.DeckCard", b =>
@@ -542,7 +542,7 @@ namespace SpeakUpCSharp.Data.Migrations
 
                     b.HasIndex("UserId");
 
-                    b.ToTable("DeckCards");
+                    b.ToTable("DeckCards", (string)null);
                 });
 
             modelBuilder.Entity("SpeakUpCSharp.Models.SectionLink", b =>
@@ -575,7 +575,7 @@ namespace SpeakUpCSharp.Data.Migrations
 
                     b.HasIndex("UserId");
 
-                    b.ToTable("SectionLinks");
+                    b.ToTable("SectionLinks", (string)null);
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<int>", b =>
