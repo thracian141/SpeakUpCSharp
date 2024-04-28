@@ -86,5 +86,21 @@ namespace SpeakUpCSharp.Controllers {
 			}
 			return new JsonResult(new { month });
 		}
+
+        [HttpGet("weeklyGoals")]
+        public async Task<IActionResult> GetWeeklyGoals() {
+            var user = await _userManager.GetUserAsync(User);
+            int[] week = new int[14];
+            for (int i = 0; i < 14; i++) {
+				var dailyPerformance = await _db.DailyPerformances
+					.Where(dp => dp.UserId == user.Id && dp.Date.Date == DateTime.UtcNow.AddDays(-i).Date)
+					.FirstOrDefaultAsync();
+				if (dailyPerformance == null)
+					continue;
+				else
+                    week[i] = dailyPerformance.WordsGuessedCount;
+			}
+            return new JsonResult(new { week });
+        }
     }
 }
