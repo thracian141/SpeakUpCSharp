@@ -57,6 +57,8 @@ builder.Services.AddScoped<IDbInitializer,DbInitializer>();
 builder.Services.AddControllersWithViews();
 builder.Services.AddScoped<ITokenService,TokenService>();
 builder.Services.AddScoped<IImageService,ImageService>();
+builder.Services.AddScoped<IReviewDateService, ReviewDateService>();
+builder.Services.AddScoped<IDailyPerformanceService, DailyPerformanceService>();
 builder.Services.AddRazorPages();
 
 var app = builder.Build();

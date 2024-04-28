@@ -59,6 +59,56 @@ namespace SpeakUpCSharp.Controllers {
 			_logger.LogInformation(list.ToString());
 			return new JsonResult(new { list });
 		}
+		[HttpPost("setactivedeck")]
+		public async Task<IActionResult> SetActiveDeck(int deckId) {
+			var user = await _userManager.GetUserAsync(User);
+			var deck = await _db.Decks.FindAsync(deckId);
+			if (user == null || deck == null)
+				return NotFound("User or deck not found");
+			user.LastDeck = deckId;
+			await _db.SaveChangesAsync();
+			return Ok();
+		}
+		[HttpGet("getlastdeck")]
+		public async Task<IActionResult> GetLastDeck() {
+			var user = await _userManager.GetUserAsync(User);
+			if (user == null)
+				return NotFound("User not found");
+			if (user.LastDeck == null)
+				return NoContent();
+			var deck = await _db.Decks.FindAsync(user.LastDeck);
+			if (deck == null)
+				return NotFound("Deck not found");
+			return new JsonResult(new { deck });
+		}
+		[HttpPost("deletedeck")]
+		public async Task<IActionResult> DeleteDeck(int deckId) {
+			var user = await _userManager.GetUserAsync(User);
+			var deck = await _db.Decks.FindAsync(deckId);
+			if (user == null || deck == null)
+				return NotFound("User or deck not found");
+			if (user.Id != deck.OwnerId)
+				return Unauthorized("Not the owner of the deck");
+
+
+			var cards = await _db.DeckCards.Where(c => c.DeckId == deckId).ToListAsync();
+
+			_db.DeckCards.RemoveRange(cards);
+			_db.Decks.Remove(deck);
+			await _db.SaveChangesAsync();
+			return Ok();
+		}
+		[HttpPost("editDeck")]
+		public async Task<IActionResult> EditDeck([FromBody] string[] values) {
+			var user = await _userManager.GetUserAsync(User);
+			var deck = await _db.Decks.FindAsync(Int32.Parse(values[0]));
+
+			deck.DeckName = values[1];
+			deck.DeckDescription = values[2];
+			await _db.SaveChangesAsync();
+
+			return new JsonResult(new { deck });
+		}
 
 		[Authorize(Roles = ApplicationRoles.Admin)]
 		[HttpGet("search")]

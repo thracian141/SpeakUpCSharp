@@ -55,7 +55,7 @@ namespace SpeakUpCSharp.Controllers {
 			Section section = new Section {
 				Title = sectionInput.Title,
 				Description = sectionInput.Description,
-				LastEdited = DateTime.Now,
+				LastEdited = DateTime.UtcNow,
 				LastEditorId = user.Id,
 				LastEditor = user,CourseCode = sectionInput.CourseCode,
 				Order = (int)order

@@ -12,7 +12,7 @@ using SpeakUpCSharp.Data;
 namespace SpeakUpCSharp.Data.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20240421014719_Initial")]
+    [Migration("20240423120912_Initial")]
     partial class Initial
     {
         /// <inheritdoc />
@@ -212,13 +212,13 @@ namespace SpeakUpCSharp.Data.Migrations
                     b.Property<int>("MinutesSpentLearning")
                         .HasColumnType("int");
 
+                    b.Property<int>("NewWords")
+                        .HasColumnType("int");
+
                     b.Property<int>("UserId")
                         .HasColumnType("int");
 
                     b.Property<int>("WordsGuessedCount")
-                        .HasColumnType("int");
-
-                    b.Property<int>("WordsLearnedCount")
                         .HasColumnType("int");
 
                     b.HasKey("Id");
@@ -337,6 +337,9 @@ namespace SpeakUpCSharp.Data.Migrations
                     b.Property<string>("ConcurrencyStamp")
                         .IsConcurrencyToken()
                         .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("DailyWordGoal")
+                        .HasColumnType("int");
 
                     b.Property<string>("DisplayName")
                         .HasColumnType("nvarchar(max)");
@@ -481,9 +484,6 @@ namespace SpeakUpCSharp.Data.Migrations
                         .HasColumnType("int");
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<int>("ActiveSection")
-                        .HasColumnType("int");
 
                     b.Property<string>("CourseCode")
                         .IsRequired()

@@ -50,8 +50,8 @@ namespace SpeakUpCSharp.Controllers {
 					UserId = user.Id,
 					User = user,
 					Level = 0,
-					LastReviewDate = DateTime.Now,
-					NextReviewDate = DateTime.Now,
+					LastReviewDate = DateTime.UtcNow,
+					NextReviewDate = DateTime.UtcNow,
 					FlaggedAsImportant = false,
 					CourseCode = courseCode
 				});
@@ -67,9 +67,12 @@ namespace SpeakUpCSharp.Controllers {
 			var user = await _userManager.GetUserAsync(User);
 			if (user == null) { return NotFound("No user found"); }
 
-			if (user.LastCourse == newCourse)
+			user.LastDeck = null;
+
+			if (user.LastCourse == newCourse) {
+				await _db.SaveChangesAsync();
 				return Ok("Already studying this course");
-			else {
+			} else {
 				user.LastCourse = newCourse;
 				await _db.SaveChangesAsync();
 				return Ok(newCourse);
@@ -131,6 +134,46 @@ namespace SpeakUpCSharp.Controllers {
 			var username = lastEditedSection.LastEditor.UserName;
 
 			return new JsonResult(new { date, username });
+		}
+		[HttpGet("getLastCourseCode")]
+		public async Task<IActionResult> GetLastCourseCode() {
+			var user = await _userManager.GetUserAsync(User);
+			if (user == null || user.LastCourse == null) { return Unauthorized(); }
+
+			return Ok(user.LastCourse);
+		}
+
+		[HttpGet("listactivecoursecodes")]
+		public async Task<IActionResult> ListActiveCourses() {
+			var user = await _userManager.GetUserAsync(User);
+			if (user == null) { return Unauthorized(); }
+
+			List<string> courses = await _db.CourseLinks
+				.Where(l => l.UserId == user.Id)
+				.Select(l => l.CourseCode)
+				.ToListAsync();
+			if (courses.Count == 0) { return Unauthorized(); }
+
+			return new JsonResult(new { courses });
+		}
+		[HttpGet("getCoursePerformance")]
+		public async Task<IActionResult> GetCoursePerformance(string courseCode) {
+			var user = await _userManager.GetUserAsync(User);
+			if (user == null) { return Unauthorized(); }
+
+			int learnedWords = await _db.CardLinks
+				.Where(l => l.UserId == user.Id && l.CourseCode == courseCode && l.Level > 0)
+				.CountAsync();
+			int totalWords = await _db.CourseCards
+				.Where(c => c.CourseCode == courseCode)
+				.CountAsync();
+			int totalLeft = totalWords - learnedWords;
+			int percentageTotalLeft = (int)Math.Round((double)learnedWords / totalWords * 100);
+			int goalWords = user.DailyWordGoal * 200;
+			int goalLeft = goalWords - learnedWords;
+			int percentageGoalLeft = (int)Math.Round((double)learnedWords / goalWords * 100);
+
+			return new JsonResult(new { learnedWords, totalWords, totalLeft, percentageTotalLeft, goalWords, goalLeft, percentageGoalLeft });
 		}
 	}
 }

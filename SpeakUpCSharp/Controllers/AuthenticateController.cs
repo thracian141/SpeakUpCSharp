@@ -9,6 +9,7 @@ using SpeakUpCSharp.Models.InputModels;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.ComponentModel.DataAnnotations;
 using Microsoft.EntityFrameworkCore;
+using SpeakUpCSharp.Services;
 
 namespace SpeakUpCSharp.Controllers {
     [Route("authenticate")]
@@ -19,14 +20,15 @@ namespace SpeakUpCSharp.Controllers {
         private readonly UserManager<ApplicationUser> _userManager;
         private readonly ILogger<AuthenticateController> _logger;
         private readonly ITokenService _tokenService;
-
+        private readonly IDailyPerformanceService _daily;
         public AuthenticateController(SignInManager<ApplicationUser> signInManager,UserManager<ApplicationUser> userManager,ILogger<AuthenticateController> logger
-        ,ITokenService tokenService, ApplicationDbContext db) {
+        ,ITokenService tokenService, ApplicationDbContext db, IDailyPerformanceService daily) {
             _tokenService=tokenService;
             _signInManager=signInManager;
             _userManager=userManager;
             _logger=logger;
             _db = db;
+            _daily = daily;
         }
         [HttpPost("register")]
         public async Task<IActionResult> Register([FromBody] RegisterInputModel model) {
@@ -88,19 +90,7 @@ namespace SpeakUpCSharp.Controllers {
             };
             Response.Cookies.Append("token",token,cookieOptions);
 
-            var currentDailyPerformance = await _db.DailyPerformances
-                .Where(dp => dp.UserId == user.Id && dp.Date.Date == DateTime.UtcNow.Date)
-                .FirstOrDefaultAsync();
-            if (currentDailyPerformance == null) {
-                var dailyPerformance = new DailyPerformance {
-					Id = 0,
-					Date = DateTime.UtcNow,
-					UserId = user.Id,
-					User = user
-				};
-                await _db.DailyPerformances.AddAsync(dailyPerformance);
-                await _db.SaveChangesAsync();
-            }
+            var currentDailyPerformance = await _daily.GetDailyPerformance(user.Id);
 
             return new JsonResult(new { token });
         }

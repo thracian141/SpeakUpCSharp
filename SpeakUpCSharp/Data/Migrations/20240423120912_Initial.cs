@@ -38,6 +38,7 @@ namespace SpeakUpCSharp.Data.Migrations
                     AccountCreatedDate = table.Column<DateTime>(type: "datetime2", nullable: false),
                     LastDeck = table.Column<int>(type: "int", nullable: true),
                     LastCourse = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    DailyWordGoal = table.Column<int>(type: "int", nullable: false),
                     NormalizedUserName = table.Column<string>(type: "nvarchar(256)", maxLength: 256, nullable: true),
                     Email = table.Column<string>(type: "nvarchar(256)", maxLength: 256, nullable: true),
                     NormalizedEmail = table.Column<string>(type: "nvarchar(256)", maxLength: 256, nullable: true),
@@ -170,8 +171,7 @@ namespace SpeakUpCSharp.Data.Migrations
                     Id = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
                     CourseCode = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    UserId = table.Column<int>(type: "int", nullable: false),
-                    ActiveSection = table.Column<int>(type: "int", nullable: false)
+                    UserId = table.Column<int>(type: "int", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -192,8 +192,8 @@ namespace SpeakUpCSharp.Data.Migrations
                         .Annotation("SqlServer:Identity", "1, 1"),
                     Date = table.Column<DateTime>(type: "datetime2", nullable: false),
                     WordsGuessedCount = table.Column<int>(type: "int", nullable: false),
-                    WordsLearnedCount = table.Column<int>(type: "int", nullable: false),
                     MinutesSpentLearning = table.Column<int>(type: "int", nullable: false),
+                    NewWords = table.Column<int>(type: "int", nullable: false),
                     UserId = table.Column<int>(type: "int", nullable: false)
                 },
                 constraints: table =>
