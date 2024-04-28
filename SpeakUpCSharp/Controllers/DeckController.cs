@@ -81,6 +81,34 @@ namespace SpeakUpCSharp.Controllers {
 				return NotFound("Deck not found");
 			return new JsonResult(new { deck });
 		}
+		[HttpPost("deletedeck")]
+		public async Task<IActionResult> DeleteDeck(int deckId) {
+			var user = await _userManager.GetUserAsync(User);
+			var deck = await _db.Decks.FindAsync(deckId);
+			if (user == null || deck == null)
+				return NotFound("User or deck not found");
+			if (user.Id != deck.OwnerId)
+				return Unauthorized("Not the owner of the deck");
+
+
+			var cards = await _db.DeckCards.Where(c => c.DeckId == deckId).ToListAsync();
+
+			_db.DeckCards.RemoveRange(cards);
+			_db.Decks.Remove(deck);
+			await _db.SaveChangesAsync();
+			return Ok();
+		}
+		[HttpPost("editDeck")]
+		public async Task<IActionResult> EditDeck([FromBody] string[] values) {
+			var user = await _userManager.GetUserAsync(User);
+			var deck = await _db.Decks.FindAsync(Int32.Parse(values[0]));
+
+			deck.DeckName = values[1];
+			deck.DeckDescription = values[2];
+			await _db.SaveChangesAsync();
+
+			return new JsonResult(new { deck });
+		}
 
 		[Authorize(Roles = ApplicationRoles.Admin)]
 		[HttpGet("search")]
