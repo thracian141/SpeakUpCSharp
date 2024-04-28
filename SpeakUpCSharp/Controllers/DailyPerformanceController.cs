@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using SpeakUpCSharp.Data;
 using SpeakUpCSharp.Models;
 using SpeakUpCSharp.Services;
@@ -51,5 +52,39 @@ namespace SpeakUpCSharp.Controllers {
             await _db.SaveChangesAsync();
             return Ok();
         }
+        [HttpGet("hasStudiedWeek")]
+        public async Task<IActionResult> GetHasStudiedThisWeekPerDay() {
+            var user = await _userManager.GetUserAsync(User);
+            DateTime today = DateTime.UtcNow;
+            bool[] week = { false,false, false, false, false, false, false };
+
+            for (int i = 0; i < 7; i++) {
+                var dailyPerformance = await _db.DailyPerformances
+                    .Where(dp => dp.UserId == user.Id && dp.Date.Date == today.AddDays(-i).Date)
+                    .FirstOrDefaultAsync();
+                if (dailyPerformance == null)
+                    continue;
+                else if (dailyPerformance.WordsGuessedCount > 0)
+                    week[i] = true;
+			}
+            return new JsonResult(new { week });
+		}
+        [HttpGet("hasStudiedMonth")]
+        public async Task<IActionResult> GetHasStudiedThisMonthPerDay() {
+			var user = await _userManager.GetUserAsync(User);
+			DateTime today = DateTime.UtcNow;
+            bool[] month = new bool[35];
+
+			for (int i = 0; i < 35; i++) {
+				var dailyPerformance = await _db.DailyPerformances
+					.Where(dp => dp.UserId == user.Id && dp.Date.Date == today.AddDays(-i).Date)
+					.FirstOrDefaultAsync();
+				if (dailyPerformance == null)
+					continue;
+				else if (dailyPerformance.WordsGuessedCount > 0)
+                    month[i] = true;
+			}
+			return new JsonResult(new { month });
+		}
     }
 }
