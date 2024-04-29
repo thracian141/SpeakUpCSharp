@@ -9,10 +9,10 @@ using SpeakUpCSharp.Data;
 
 #nullable disable
 
-namespace SpeakUpCSharp.Data.Migrations
+namespace SpeakUpCSharp.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20240423120912_Initial")]
+    [Migration("20240428203555_Initial")]
     partial class Initial
     {
         /// <inheritdoc />

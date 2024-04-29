@@ -24,6 +24,7 @@ builder.Services.AddDatabaseDeveloperPageExceptionFilter();
 builder.Services.AddCors(options => {
 	options.AddPolicy(name: SvelteOrigins,
 		policy => {
+			policy.WithOrigins("https://www.speak-up.top").AllowAnyHeader().AllowCredentials().AllowAnyMethod();
 			policy.WithOrigins("http://localhost:5555").AllowAnyHeader().AllowCredentials().AllowAnyMethod();
 		});
 });

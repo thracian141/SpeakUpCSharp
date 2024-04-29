@@ -8,7 +8,7 @@ using SpeakUpCSharp.Data;
 
 #nullable disable
 
-namespace SpeakUpCSharp.Data.Migrations
+namespace SpeakUpCSharp.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
     partial class ApplicationDbContextModelSnapshot : ModelSnapshot
@@ -192,7 +192,7 @@ namespace SpeakUpCSharp.Data.Migrations
 
                     b.HasIndex("SectionId");
 
-                    b.ToTable("CourseCards", (string)null);
+                    b.ToTable("CourseCards");
                 });
 
             modelBuilder.Entity("SpeakUp.Models.DailyPerformance", b =>
@@ -222,7 +222,7 @@ namespace SpeakUpCSharp.Data.Migrations
 
                     b.HasIndex("UserId");
 
-                    b.ToTable("DailyPerformances", (string)null);
+                    b.ToTable("DailyPerformances");
                 });
 
             modelBuilder.Entity("SpeakUp.Models.Deck", b =>
@@ -253,7 +253,7 @@ namespace SpeakUpCSharp.Data.Migrations
 
                     b.HasIndex("OwnerId");
 
-                    b.ToTable("Decks", (string)null);
+                    b.ToTable("Decks");
                 });
 
             modelBuilder.Entity("SpeakUp.Models.Section", b =>
@@ -288,7 +288,7 @@ namespace SpeakUpCSharp.Data.Migrations
 
                     b.HasIndex("LastEditorId");
 
-                    b.ToTable("Sections", (string)null);
+                    b.ToTable("Sections");
                 });
 
             modelBuilder.Entity("SpeakUp.Models.Sentence", b =>
@@ -314,7 +314,7 @@ namespace SpeakUpCSharp.Data.Migrations
 
                     b.HasIndex("WordId");
 
-                    b.ToTable("Sentences", (string)null);
+                    b.ToTable("Sentences");
                 });
 
             modelBuilder.Entity("SpeakUpCSharp.Models.ApplicationUser", b =>
@@ -432,7 +432,7 @@ namespace SpeakUpCSharp.Data.Migrations
 
                     b.HasIndex("ReporterId");
 
-                    b.ToTable("BugReports", (string)null);
+                    b.ToTable("BugReports");
                 });
 
             modelBuilder.Entity("SpeakUpCSharp.Models.CardLink", b =>
@@ -471,7 +471,7 @@ namespace SpeakUpCSharp.Data.Migrations
 
                     b.HasIndex("UserId");
 
-                    b.ToTable("CardLinks", (string)null);
+                    b.ToTable("CardLinks");
                 });
 
             modelBuilder.Entity("SpeakUpCSharp.Models.CourseLink", b =>
@@ -493,7 +493,7 @@ namespace SpeakUpCSharp.Data.Migrations
 
                     b.HasIndex("UserId");
 
-                    b.ToTable("CourseLinks", (string)null);
+                    b.ToTable("CourseLinks");
                 });
 
             modelBuilder.Entity("SpeakUpCSharp.Models.DeckCard", b =>
@@ -542,7 +542,7 @@ namespace SpeakUpCSharp.Data.Migrations
 
                     b.HasIndex("UserId");
 
-                    b.ToTable("DeckCards", (string)null);
+                    b.ToTable("DeckCards");
                 });
 
             modelBuilder.Entity("SpeakUpCSharp.Models.SectionLink", b =>
@@ -575,7 +575,7 @@ namespace SpeakUpCSharp.Data.Migrations
 
                     b.HasIndex("UserId");
 
-                    b.ToTable("SectionLinks", (string)null);
+                    b.ToTable("SectionLinks");
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<int>", b =>

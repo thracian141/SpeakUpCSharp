@@ -45,7 +45,11 @@ namespace SpeakUpCSharp.Controllers {
             var result = await _userManager.CreateAsync(user,model.Password);
 
             if (!result.Succeeded) {
-                return BadRequest(result.Errors);
+                string errors = "";
+                foreach (var error in result.Errors) {
+                    errors += (error.Description + " ");
+                }
+                return BadRequest(new { errors });
             }
             await _db.SaveChangesAsync();
             await _userManager.AddToRoleAsync(user,"User");
@@ -72,14 +76,16 @@ namespace SpeakUpCSharp.Controllers {
 
         [HttpPost("login")]
         public async Task<IActionResult> Login([FromBody] LoginInputModel model) {
-
             if (!ModelState.IsValid) {
                 return BadRequest(ModelState);
             }
 
-            var user = await _userManager.FindByEmailAsync(model.Email);
-            if (user==null||!await _userManager.CheckPasswordAsync(user,model.Password)) {
-                return Unauthorized();
+            var user = await _userManager.FindByNameAsync(model.UserName);
+            if (user == null) {
+                return Unauthorized("Username not found.");
+            }
+            if (!await _userManager.CheckPasswordAsync(user,model.Password)) {
+                return Unauthorized("Wrong password.");
             }
 
             var token = await _tokenService.GenerateToken(user);

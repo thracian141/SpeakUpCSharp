@@ -195,6 +195,21 @@ namespace SpeakUpCSharp.Controllers {
 			if (user == null)
 				return BadRequest();
 
+            var dailyPerformances = await _db.DailyPerformances.Where(dp => dp.UserId == userId).ToListAsync();
+            _db.DailyPerformances.RemoveRange(dailyPerformances);
+			var cardLinks = await _db.CardLinks.Where(cl => cl.UserId == userId).ToListAsync();
+            _db.CardLinks.RemoveRange(cardLinks);
+			var sectionLinks = await _db.SectionLinks.Where(sl => sl.UserId == userId).ToListAsync();
+            _db.SectionLinks.RemoveRange(sectionLinks);
+			var courseLinks = await _db.CourseLinks.Where(cl => cl.UserId == userId).ToListAsync();
+            _db.CourseLinks.RemoveRange(courseLinks);
+            var bugReports = await _db.BugReports.Where(br => br.ReporterId == userId).ToListAsync();
+            _db.BugReports.RemoveRange(bugReports);
+            var deckCards = await _db.DeckCards.Where(dc => dc.UserId == userId).ToListAsync();
+            _db.DeckCards.RemoveRange(deckCards);
+            var decks = await _db.Decks.Where(d => d.OwnerId == userId).ToListAsync();
+            _db.Decks.RemoveRange(decks);
+
 			await _userManager.DeleteAsync(user);
             await _db.SaveChangesAsync();
 
