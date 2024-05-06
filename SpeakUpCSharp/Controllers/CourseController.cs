@@ -115,6 +115,16 @@ namespace SpeakUpCSharp.Controllers {
 			var user = await _userManager.GetUserAsync(User);
 			if (user == null) { return Unauthorized("No user!"); }
 
+			var cardLinks = await _db.CardLinks
+				.Where(l => l.UserId == user.Id && l.CourseCode == courseCode)
+				.ToListAsync();
+			_db.CardLinks.RemoveRange(cardLinks);
+
+			var sectionLinks = await _db.SectionLinks
+				.Where(l => l.UserId == user.Id && l.CourseCode == courseCode)
+				.ToListAsync();
+			_db.SectionLinks.RemoveRange(sectionLinks);
+
 			CourseLink? courseLink = await _db.CourseLinks.Where(l => l.UserId == user.Id && l.CourseCode == courseCode).FirstOrDefaultAsync();
 			if (courseLink == null) { return NotFound("Not studying this course!"); }
 
