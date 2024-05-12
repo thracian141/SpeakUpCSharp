@@ -110,7 +110,7 @@ namespace SpeakUpCSharp.Controllers {
 			return new JsonResult(new { deck });
 		}
 
-		[Authorize(Roles = ApplicationRoles.Admin)]
+		[Authorize(Roles = $"{ApplicationRoles.Admin},{ApplicationRoles.SysAdmin}")]
 		[HttpGet("search")]
 		public async Task<IActionResult> SearchDecks(string search) {
 			var searchNormalized = search.ToLower();

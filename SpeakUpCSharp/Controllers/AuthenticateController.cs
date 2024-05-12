@@ -20,15 +20,17 @@ namespace SpeakUpCSharp.Controllers {
         private readonly UserManager<ApplicationUser> _userManager;
         private readonly ILogger<AuthenticateController> _logger;
         private readonly ITokenService _tokenService;
+        private readonly ICourseService _course;
         private readonly IDailyPerformanceService _daily;
         public AuthenticateController(SignInManager<ApplicationUser> signInManager,UserManager<ApplicationUser> userManager,ILogger<AuthenticateController> logger
-        ,ITokenService tokenService, ApplicationDbContext db, IDailyPerformanceService daily) {
+        ,ITokenService tokenService, ApplicationDbContext db, IDailyPerformanceService daily, ICourseService course) {
             _tokenService=tokenService;
             _signInManager=signInManager;
             _userManager=userManager;
             _logger=logger;
             _db = db;
             _daily = daily;
+            _course = course;
         }
         [HttpPost("register")]
         public async Task<IActionResult> Register([FromBody] RegisterInputModel model) {
@@ -53,6 +55,10 @@ namespace SpeakUpCSharp.Controllers {
             }
             await _db.SaveChangesAsync();
             await _userManager.AddToRoleAsync(user,"User");
+
+            if (model.CourseCode != "none" && model.CourseCode != null) {
+                await _course.StartLearningCourse(user.Id, model.CourseCode);
+            }
 
             var token = await _tokenService.GenerateToken(user);
             var cookieOptions = new CookieOptions {

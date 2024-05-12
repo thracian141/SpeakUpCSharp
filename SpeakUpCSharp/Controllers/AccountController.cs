@@ -166,26 +166,37 @@ namespace SpeakUpCSharp.Controllers {
 		[Authorize(Roles = $"{ApplicationRoles.Admin},{ApplicationRoles.SysAdmin}")]
 		[HttpGet("searchAccounts")]
         public async Task<IActionResult> SearchAccounts(string search) {
-            var thisuser = await _userManager.GetUserAsync(User);
-            var sysadmin = await _db.Users.Where(u => u.UserName == "sysadmin").FirstOrDefaultAsync();
-            var searchNormalized = search.ToLower();
+            if (search == "@all") {
+                var users = await _db.Users.ToListAsync();
+				var userRoles = new List<string>();
+				foreach (var u in users) {
+					var roles = await _userManager.GetRolesAsync(u);
+					userRoles.Add(roles.FirstOrDefault());
+				}
+				return new JsonResult(new { users, userRoles });
 
-			var users = await _db.Users
-                .Where(u => 
-                    u.UserName.ToLower().Contains(searchNormalized) || 
-                    u.DisplayName.Contains(searchNormalized) ||
-                    u.Email.Contains(searchNormalized))
-                .ToListAsync();
-            users.Remove(thisuser);
-            users.Remove(sysadmin);
+            } else {
+				var thisuser = await _userManager.GetUserAsync(User);
+				var sysadmin = await _db.Users.Where(u => u.UserName == "sysadmin").FirstOrDefaultAsync();
+				var searchNormalized = search.ToLower();
 
-			var userRoles = new List<string>();
-			foreach (var u in users) {
-                var roles = await _userManager.GetRolesAsync(u);
-                userRoles.Add(roles.FirstOrDefault());
+				var users = await _db.Users
+					.Where(u =>
+						u.UserName.ToLower().Contains(searchNormalized) ||
+						u.DisplayName.Contains(searchNormalized) ||
+						u.Email.Contains(searchNormalized))
+					.ToListAsync();
+				users.Remove(thisuser);
+				users.Remove(sysadmin);
+
+				var userRoles = new List<string>();
+				foreach (var u in users) {
+					var roles = await _userManager.GetRolesAsync(u);
+					userRoles.Add(roles.FirstOrDefault());
+				}
+
+				return new JsonResult(new { users, userRoles });
 			}
-
-			return new JsonResult(new { users, userRoles });
 		}
 
 		[Authorize(Roles = $"{ApplicationRoles.Admin},{ApplicationRoles.SysAdmin}")]
