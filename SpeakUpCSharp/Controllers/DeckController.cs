@@ -119,5 +119,16 @@ namespace SpeakUpCSharp.Controllers {
 
 			return new JsonResult(new { list });
 		}
+		[Authorize(Roles = $"{ApplicationRoles.Admin},{ApplicationRoles.SysAdmin}")]
+		[HttpGet("getowner")]
+		public async Task<IActionResult> GetDeckOwner(int deckId) {
+			var deck = await _db.Decks.FindAsync(deckId);
+			if (deck == null)
+				return NotFound("Deck not found");
+			var owner = await _db.Users.FindAsync(deck.OwnerId);
+			if (owner == null)
+				return NotFound("Owner not found");
+			return new JsonResult(new { owner });
+		}
 	}
 }
