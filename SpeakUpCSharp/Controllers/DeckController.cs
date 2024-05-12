@@ -113,11 +113,19 @@ namespace SpeakUpCSharp.Controllers {
 		[Authorize(Roles = $"{ApplicationRoles.Admin},{ApplicationRoles.SysAdmin}")]
 		[HttpGet("search")]
 		public async Task<IActionResult> SearchDecks(string search) {
-			var searchNormalized = search.ToLower();
-			var list = await _db.Decks.Where(d => d.DeckName.ToLower().Contains(searchNormalized)).ToListAsync();
-			list.Concat(await _db.Decks.Where(d => d.DeckDescription.ToLower().Contains(searchNormalized)).ToListAsync());
+			if (search == "@all") {
+				var list = await _db.Decks.Include(d => d.Owner).ToListAsync();
+				var owners = list.Select(d => d.Owner).Select(o => o.UserName).ToList();
+				return new JsonResult(new { list, owners });
+			} else {
+				var searchNormalized = search.ToLower();
+				var list = await _db.Decks.Where(d => d.DeckName.ToLower().Contains(searchNormalized)).Include(d => d.Owner).ToListAsync();
+				list.Concat(await _db.Decks.Where(d => d.DeckDescription.ToLower().Contains(searchNormalized)).ToListAsync());
 
-			return new JsonResult(new { list });
+				var owners = list.Select(d => d.Owner).Select(o => o.UserName).ToList();
+
+				return new JsonResult(new { list, owners });
+			}
 		}
 		[Authorize(Roles = $"{ApplicationRoles.Admin},{ApplicationRoles.SysAdmin}")]
 		[HttpGet("getowner")]

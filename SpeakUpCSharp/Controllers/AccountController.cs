@@ -174,7 +174,6 @@ namespace SpeakUpCSharp.Controllers {
 					userRoles.Add(roles.FirstOrDefault());
 				}
 				return new JsonResult(new { users, userRoles });
-
             } else {
 				var thisuser = await _userManager.GetUserAsync(User);
 				var sysadmin = await _db.Users.Where(u => u.UserName == "sysadmin").FirstOrDefaultAsync();
