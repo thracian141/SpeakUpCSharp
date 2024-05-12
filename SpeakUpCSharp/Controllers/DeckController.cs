@@ -128,7 +128,7 @@ namespace SpeakUpCSharp.Controllers {
 			var owner = await _db.Users.FindAsync(deck.OwnerId);
 			if (owner == null)
 				return NotFound("Owner not found");
-			return new JsonResult(new { owner });
+			return Ok(owner.UserName);
 		}
 	}
 }
